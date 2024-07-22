@@ -1,4 +1,6 @@
 %pairing tests
+close all 
+clear all
 
 %% odor_pairing/02222024/fly001
 
@@ -139,6 +141,10 @@ folder = 'odor_pairing/02282024/Fly005/post_pairing';
 thresh = 120;
 
 data.fly02282024_005.post_pairing = extract_fictrac(folder, thresh);
+
+%%
+save('58E02_pairing', "data");
+
 %%
 straight_vs_turn(data, 'movspd')
 

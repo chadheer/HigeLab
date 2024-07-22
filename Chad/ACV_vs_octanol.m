@@ -1,5 +1,6 @@
 %% ACV_vs octanol analysis
-
+clear all
+close all
 %% 12062023/Fly004
 % ACV_straight
 folder = '12062023/Fly004/ACV_straight'
@@ -184,6 +185,8 @@ thresh = 150;
 
 data.fly01252024_008.OCT_straight = extract_fictrac(folder, thresh);
 
+%%
+save('ACV_vs_octanol_data', 'data')
 
 %%
 straight_vs_turn(data, 'movspd')

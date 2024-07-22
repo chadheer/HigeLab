@@ -1,7 +1,6 @@
-%% FicTracExtract.m
-
+%% extract data
 %INPUTS
-%folder = folder where fictrac data is found
+%folder = folder where fictrac and fluorescence data is found
 %thresh = optional variable, set threshold for fiji output tracking led
 %turning on and off indicating odor delivery
 
@@ -12,6 +11,14 @@ main_folder = pwd;
 %change wd to folder with data
 cd(folder);
 
+%find and load parameters fild
+param_file = dir('parameters*.mat');
+params = load(param_file.name);
+
+%find and load fluorescence data
+F_name= dir('*ROIs.mat');
+F = load(F_name.name);
+F_fps = 30;
 %find fictrac data output
 fictrac_dat = dir('*fictrac*.dat');
 fictrac_out = load(fictrac_dat.name);
@@ -21,6 +28,7 @@ fps = 100;
 
 %grab odor_delivery output file from thstim if it exists
 stim_file = dir('*odor_delivery*.mat');
+
 
 if isempty(stim_file);
 
@@ -136,26 +144,21 @@ out.intyposR = intyposR;
 
 stim_frames = [];
 
+
 % for each trial, find the start, end, length, frames along with frames
 % before and after trial, and the frame number for each point
 for stim = 1:length(stim_starts)
 
-    if odor_id{stim} == "MCH";
-        odor_delay = 2 * fps;
-    elseif odor_id{stim} == "OCT";
-        odor_delay = 2 * fps;
-    elseif odor_id{stim} == "acv";
-        odor_delay = 1 * fps;
-    end
-
-
-    trial_start{stim} = frame(find(frame > frame_starts(stim),1)) + odor_delay;
-    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last')) + odor_delay;
+    trial_start{stim} = frame(find(frame > frame_starts(stim),1));
+    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last'));
     trial_length = trial_end{stim}-trial_start{stim};
-    trial_frames{stim} = trial_start{stim}-trial_length:trial_end{stim}+trial_length;
+    trial_frames{stim} = trial_start{stim} - (params.Data_1.parameter.preO * fps):trial_end{stim} + ((params.Data_1.parameter.dur - (params.Data_1.parameter.preO + params.Data_1.parameter.odorD)) * fps);
     stim_frames = [stim_frames, trial_start{stim}:trial_end{stim}];
     trial_x{stim} = trial_frames{stim} - trial_start{stim};
 end
+
+
+
 
 %collect variables for output and convert to the correct units
 out.trial_x = trial_x;
@@ -170,6 +173,25 @@ out.drotvly = drotvly * fps *180/3.14159;
 out.drotvlz = drotvlz * fps *180/3.14159;
 out.movdir = movdir * fps * 180/3.14159;
 out.inthead = inthead * fps *180/3.14159;
+out.F = F.data.F;
+out.Data_1 = params.Data_1;
+
+x = diff(out.inthead);
+x = [0; x];
+x(x>5000) = x(x>5000) - 36000; % elimante the large changes in turning that are caused when going over 360 degrees
+x(x<-5000) = x(x<-5000) + 36000; % elimante the large changes in turning that occur when going under 0 degrees
+
+out.inthead = movmean(x, 10); % find the mean of ten frames to smooth data slightly
+
+
+x = diff(out.movdir);
+x = [0; x];
+x(x>5000) = x(x>5000) - 36000;
+x(x<-5000) = x(x<-5000) + 36000;
+
+x = x - nanmean(x);
+
+out.movdir = movmean(x, 10)
 
 if exist("odor_id", 'var')
     out.odor_id = odor_id;
