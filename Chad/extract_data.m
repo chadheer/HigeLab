@@ -17,7 +17,29 @@ params = load(param_file.name);
 
 %find and load fluorescence data
 F_name= dir('*ROIs.mat');
-F = load(F_name.name);
+if size(F_name,1) == 2;
+    F = load(F_name(1,:).name);
+    F.red = load(F_name(2,:).name);
+    out.F_red_norm = F.data.F ./ F.red.data.F;
+    out.F_red = F.red.data.F;
+    out.Fc = F.data.Fc;
+else 
+    F = load(F_name.name);
+    out.Fc = F.data.Fc;
+
+end
+
+% for roi = 1: size(F.data.F,2)
+% 
+%     figure; hold on
+%     subplot(2,1,1)
+%     hold on
+%     plot(F.data.F(:,roi))
+%     plot(F.red.data.F(:,roi))
+%     subplot(2,1,2)
+%     plot(out.Fc(:,roi))
+% end
+
 F_fps = 30;
 %find fictrac data output
 fictrac_dat = dir('*fictrac*.dat');
@@ -115,6 +137,26 @@ intsidmot = fictrac_out(:,21); %integrated side motion (lc) Y
 time = fictrac_out(:,22); %timestamp
 seq = fictrac_out(:,23); %sequence counter
 
+
+% meanxpos = movmean(intxpos,30)
+% meanypos = movmean(intypos,30)
+% x_diff = diff(meanxpos);
+% y_diff = diff(meanypos);
+% 
+% 
+% immobile = find(abs(x_diff) < 0.001 & abs(y_diff) < 0.001);
+% 
+% temp_xpos = intxpos;
+% temp_ypos = intypos;
+% temp_xpos(immobile) = NaN;
+% temp_ypos(immobile) = NaN;
+% 
+% figure; hold on
+% plot(temp_xpos, temp_ypos)
+% plot(intxpos(immobile), intypos(immobile));
+% plot(movmean(intxpos,30), movmean(intypos,30));
+
+
 %x and fps for plots
 x = (1:length(frame));
 fps = 100;
@@ -168,11 +210,17 @@ out.trial_length = trial_length;
 out.trial_frames = trial_frames;
 out.stim_frames = stim_frames;
 out.movspd = movspd * radius * fps;
+out.movspd(out.movspd < 4) = 0;
 out.drotvlx = drotvlx * fps *180/3.14159;
+out.drotvlx(out.movspd < 4) = 0;
 out.drotvly = drotvly * fps *180/3.14159;
+out.drotvly(out.movspd < 4) = 0;
 out.drotvlz = drotvlz * fps *180/3.14159;
+out.drotvlz(out.movspd < 4) = 0;
 out.movdir = movdir * fps * 180/3.14159;
+out.movdir(out.movspd < 4) = 0;
 out.inthead = inthead * fps *180/3.14159;
+out.inthead(out.movspd < 4) = 0;
 out.F = F.data.F;
 out.Data_1 = params.Data_1;
 
@@ -200,6 +248,8 @@ else
         out.odor_id(i) = "odor1";
     end
 end
+
+out.net_move = sqrt(out.drotvly.^2 + out.drotvlx.^2 + out.drotvlz.^2)
 
 % change the wd back to the main folder
 cd(main_folder);

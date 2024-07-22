@@ -167,12 +167,10 @@ for fly = 1: length(flies)
             % %if the measure is inthead, we just want to look at the 3
             % %seconds before vs after odor delivery 
             if measure == "inthead"
-                delay = 0 *fr;
                 during = 3 * fr;
             else
-                % during = trial_length(fly,task);
-                delay = 1 * fr;
-                during = 4 * fr;
+                during = trial_length(fly,task);
+
             end
         
             % find the mean activity prior to, during, and after
@@ -197,12 +195,12 @@ for fly = 1: length(flies)
 
             
             comparisons.(tasks{task}).(odors{o})(fly,1) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,1:5000),2);
-            comparisons.(tasks{task}).(odors{o})(fly,2) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5001+ delay:5000 + during),2);
-            comparisons.(tasks{task}).(odors{o})(fly,3) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5000 + trial_length(fly,task):end),2);
+            comparisons.(tasks{task}).(odors{o})(fly,2) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5001:5000 + during),2);
+            comparisons.(tasks{task}).(odors{o})(fly,3) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,500 + trial_length(fly,task):end),2);
 
 
             delta_measure.(tasks{task}).(odors{o})(fly) = comparisons.(tasks{task}).(odors{o})(fly,2) - comparisons.(tasks{task}).(odors{o})(fly,1);
-            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001+ delay:5000+during),4)) - squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
+            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001:5000+during),4)) - squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
 
         end
         
@@ -430,10 +428,10 @@ for task = 1: length(tasks)
         h = plot(x,pop_mean(:) - nanmean(pop_mean(range)), 'Color', cl_colors{number}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
         % j = patch([x fliplr(x)], [(pop_mean(:)'+pop_sem(:)'- nanmean(pop_mean(range))) fliplr(pop_mean(:)'-pop_sem(:)'- nanmean(pop_mean(range)))],color_seq(task))
 
-        plot(x, pop_mean(:) - nanmean(pop_mean(range)) + pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+        plot(x, pop_mean(:) - nanmean(pop_mean(range)) + pop_sem(:), 'Color', cl_colors{number})
         alpha(0.3)
 
-        plot(x, pop_mean(:) - nanmean(pop_mean(range)) - pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+        plot(x, pop_mean(:) - nanmean(pop_mean(range)) - pop_sem(:), 'Color', cl_colors{number})
         alpha(0.3)
         
         y = ylim;
@@ -442,7 +440,7 @@ for task = 1: length(tasks)
 
     
         xlim([-5 11])
-        ylim([-5 45])
+        ylim([-5 65])
 
         %set labels
         if measure == "movspd"  
@@ -470,7 +468,7 @@ end
 % set(gcf,'position',[x0,y0,width,height])
 
 
-legend(["ACV", "", "", "CS+ pre","", "", "CS- pre","","", "CS+ post","","" "CS- post"])
+legend(["ACV", "", "", "CS- pre","", "", "CS+ pre","","", "CS- post","","" "CS+ post"])
 end
 
 
