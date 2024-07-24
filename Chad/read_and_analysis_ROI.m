@@ -13,6 +13,8 @@ scalewindow=300; %#of frames should be setted differently according to the data
 [ROI_filepaths, temp]=uigetfile('*.csv', 'Chose cellsort files to load:','MultiSelect','on');
 temp_data=readtable([temp ROI_filepaths]);
 temp_data(:,1)=[];
+temp_data = table2array(temp_data);
+
 F=temp_data(:,1:measurements:size(temp_data,2));
 
 %calculate F and Fc

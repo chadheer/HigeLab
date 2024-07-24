@@ -2,58 +2,20 @@
 close all
 clear all
 
-% %% 05062024
-% % ImagingData/05062024/fly003
-% % 
-% % folder = 'ImagingData/05062024/fly000/session1';
-% % 
-% % data.fly05062024_000.session1 = extract_data(folder);
-% 
-% folder = 'ImagingData/05062024/fly000/session2';
-% 
-% data.fly05062024_000.session2 = extract_data(folder);
-% 
-% data.fly05062024_000.session2.fr = 30
-
 %% 05202024
-% ImagingData/05202024/fly000
+% ImagingData/07222024/fly000
 % 
-folder = 'ImagingData/05202024/fly000/session1';
+folder = 'UPWIN/06222024/fly000/ACV_left';
 
-data.fly05202024_000.session1 = extract_data(folder);
-data.fly05202024_000.session1.fr = 30/6;
+data.fly07222024_000.ACV_left = extract_data(folder);
+data.fly07222024_000.ACV_left.fr = 30/4;
 
-folder = 'ImagingData/05202024/fly000/session2';
+folder = 'UPWIN/06222024/fly000/pre';
 
-data.fly05202024_000.session2 = extract_data(folder);
-data.fly05202024_000.session2.fr = 30/6;
-%% ImagingData/05202024/fly001
-% 
-folder = 'ImagingData/05202024/fly001/session1';
-
-data.fly05202024_001.session1 = extract_data(folder);
-data.fly05202024_001.session1.fr = 30/6;
-
-% 
-% folder = 'ImagingData/05202024/fly001/session2';
-% 
-% data.fly05202024_000.session2 = extract_data(folder);
-
-%% ImagingData/05212024/fly000
-% 
-folder = 'ImagingData/05212024/fly000/session1';
-
-data.fly05212024_000.session1 = extract_data(folder);
-data.fly05212024_000.session1.fr = 30/6;
-
-%% ImagingData/06072024/fly002
-% 
-folder = 'ImagingData/06072024';
-
-data.fly06072024.session2 = extract_data(folder);
-data.fly06072024.session2.fr = 30/6;
+data.fly07222024_000.pre_left = extract_data(folder);
+data.fly07222024_000.pre_left.fr = 30/4;
 
 %%
-lobe_ids = {"1", "2", "3", "4", "5", "6", "7", "8"};
+lobe_ids = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
 lobe_analysis(data, "movspd", lobe_ids)

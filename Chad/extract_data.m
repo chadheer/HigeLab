@@ -22,10 +22,10 @@ if size(F_name,1) == 2;
     F.red = load(F_name(2,:).name);
     out.F_red_norm = F.data.F ./ F.red.data.F;
     out.F_red = F.red.data.F;
-    out.Fc = F.data.Fc;
+    % out.Fc = F.data.Fc;
 else 
     F = load(F_name.name);
-    out.Fc = F.data.Fc;
+    % out.Fc = F.data.Fc;
 
 end
 
