@@ -15,6 +15,18 @@ cd(folder);
 param_file = dir('parameters*.mat');
 params = load(param_file.name);
 
+
+% Get user input
+prompt = {'Enter image acquisition rate (in fps):','Enter frames per trial:','Enter radius of ROIs'};
+dlgtitle = 'Gathering user input';
+fieldsize = [1 45; 1 45; 1 45];
+definput = {'3','47','4'};
+answer = inputdlg(prompt,dlgtitle,fieldsize,definput);
+fps = str2double(answer{1});
+fpt = str2double(answer{2});
+roiRadius = str2double(answer{3});
+F_name = dir('tiffs/suite2p/plane*positions.csv')
+
 %find and load fluorescence data
 F_name= dir('*ROIs.mat');
 if size(F_name,1) == 2;
@@ -40,7 +52,6 @@ end
 %     plot(out.Fc(:,roi))
 % end
 
-F_fps = 30;
 %find fictrac data output
 fictrac_dat = dir('*fictrac*.dat');
 fictrac_out = load(fictrac_dat.name);
