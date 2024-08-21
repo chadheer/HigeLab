@@ -110,7 +110,7 @@ fpt = str2double(answer{2});
 roiRadius = str2double(answer{3});
 
 %grab position and image names for any planes where roi positions have been defined
-F_name = dir('tiffs/suite2p/plane*positions.csv')
+F_name = dir('tiffs/suite2p/plane*positions.csv');
 n_planes = length(F_name);
 
 for plane =1: n_planes
@@ -144,11 +144,14 @@ end
 % Give unique names to roiIDs across files
 % For example, File 1: 1-3, File 2: 4-8, etc.
 % Instead of, File 1: 1-3, File 2: 1-5, etc.
-
+axon_ID = 0;
 for n = 1:n_planes
     if n == 1
         DataROI(n).roiID = DataROI(n).roiIDint;
-    else
+    elseif contains(F_name(n).name, 'axon')
+        DataROI(n).roiID = DataROI(n).roiIDint; %ROI ID including other files   
+        axon_ID = axon_ID + max(DataROI(n).roiIDint);
+    else 
         startFrom = max(DataROI(n-1).roiIDint);
         DataROI(n).roiID = DataROI(n).roiIDint + startFrom; %ROI ID including other files
     end
@@ -161,7 +164,7 @@ fprintf('complete.\n');
 % Load images
 parOn = 1; % Set to 0 if preferred to load data without pool
 for plane = 1:n_planes
-    
+    clear video
     fileNumberDisplay = strcat('File_',num2str(plane),'\n');
     fprintf(fileNumberDisplay);
     fprintf('Loading imaging data...');
@@ -214,22 +217,27 @@ for plane = 1:n_planes
 
     % Store fluorescence intensity data
     fprintf('Storing fluorescence intensity data...');
-    
+    if contains(F_name(plane).name, 'axon')
+        radius = 4; 
+    else 
+        radius = roiRadius;
+    end
+
     % Get pixels to include within ROI
     for i = 1:size(DataROI(plane).roiCount,1)
         pixCenter = floor([DataROI(plane).pixX(i),DataROI(plane).pixY(i)]);
         %get points of a circle with given radius around given center point
         th = 0:pi/50:2*pi;
-        x_ROI = (roiRadius * cos(th) + pixCenter(1));
-        y_ROI = (roiRadius * sin(th) + pixCenter(2));
+        x_ROI = (radius * cos(th) + pixCenter(1));
+        y_ROI = (radius * sin(th) + pixCenter(2));
         
         
         % get all possible integer points that may lie within circle
         countX = 0;
-        for j = (pixCenter(1)-roiRadius):(pixCenter(1)+roiRadius)
+        for j = (pixCenter(1)-radius):(pixCenter(1)+radius)
             countX = countX+1;
             countY = 0;
-            for k = (pixCenter(2)-roiRadius):(pixCenter(2)+roiRadius)
+            for k = (pixCenter(2)-radius):(pixCenter(2)+radius)
                 countY = countY+1;
                 pixIncludedX(countX,countY) = j;
                 pixIncludedY(countX,countY) = k;
@@ -255,18 +263,28 @@ for plane = 1:n_planes
             temp_F(:,j) = video(t_frames,pixIncludedXY(1,j),pixIncludedXY(2,j));
         end
         %find the mean fluorescence for each frame for the ROI
-        roi = DataROI(plane).roiID(i);
-        out.F(roi,t_frames) = nanmean(temp_F,2);
-        
         % Find Zscore and deltaF0/F0
         odor_time = params.Data_1.parameter.preO;
         odor_dur = params.Data_1.parameter.dur;
         pre_odor_frames = (t_frames + (fps * odor_time - odor_dur)):(t_frames + (fps * odor_time));
+        roi = DataROI(plane).roiID(i);
+
+        
+        if contains(F_name(plane).name, 'axon')
+            out.axon.F(roi,t_frames) = nanmean(temp_F,2)
+            baseline = nanmean(out.axon.F(roi,pre_odor_frames))
+            baseline_sd = std(out.axon.F(roi,pre_odor_frames));
+            out.axon.Zscore(roi,t_frames) = (out.axon.F(roi,t_frames) - baseline) ./ baseline_sd;
+            out.axon.dff(roi,t_frames) = (out.axon.F(roi,t_frames)-baseline) ./ baseline;
+        else 
+  
+        out.F(roi,t_frames) = nanmean(temp_F,2);
         baseline = nanmean(out.F(roi,pre_odor_frames));
         baseline_sd = std(out.F(roi,pre_odor_frames));
         out.Zscore(roi,t_frames) = (out.F(roi,t_frames) - baseline) ./ baseline_sd;
         out.dff(roi,t_frames) = (out.F(roi,t_frames)-baseline) ./ baseline;
-
+        end
+        
     end
     fprintf('complete.\n');
 end
@@ -274,6 +292,10 @@ end
 out.F(out.F == 0) = NaN;
 out.Zscore(out.F == 0) = NaN;
 out.dff(out.F == 0) = NaN;
+
+out.axon.F(out.F == 0) = NaN;
+out.axon.Zscore(out.F == 0) = NaN;
+out.axon.dff(out.F == 0) = NaN;
 
 %% if ROIs are manually drawn for the average across all trials use this code
 %find and load fluorescence data
@@ -441,8 +463,9 @@ end
 
 out.net_move = sqrt(out.drotvly.^2 + out.drotvlx.^2 + out.drotvlz.^2)
 
-save("extracted_data", "out")
 % change the wd back to the main folder
+
+save("extracted_data", "out")
 cd(main_folder);
-end
+
 end
