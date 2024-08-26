@@ -453,17 +453,21 @@ for o = 1: length(odors)
     
         
             xlim([-5 11])
-            ylim([-20 80])
     
             %set labels
             if measure == "movspd"  
                 ylabel("Change in speed (mm/s)")
+                            ylim([-2 5])
+
             else 
                 ylabel("Change in turning (degrees/s)")
+                                            ylim([-40 90])
+
             end
             xlabel("time from odor onset (s)")
     
             number = number + 1;
+            legend
         end
     end
 
@@ -482,7 +486,6 @@ end
 % set(gcf,'position',[x0,y0,width,height])
 
 
-legend(["ACV", "", "CS+ pre", "CS- pre","", "CS+ post","" "CS- post"])
 end
 
 
