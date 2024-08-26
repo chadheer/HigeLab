@@ -236,11 +236,6 @@ for task = 1:length(tasks)
         boxplot(tasks2compare, labels)
         plot(tasks2compare', 'Marker', 'o', 'Color', 'k');
 
-        if measure == "movspd"
-            ylabel("average speed (mm/s)")
-        else 
-            ylabel("average rotation (degrees/s)")
-        end
         box off
         yt = get(gca, 'YTick');
         % axis([xlim    0  ceil(max(yt)*1.2)])
@@ -258,7 +253,15 @@ for task = 1:length(tasks)
         % plot(xt([1 3]), [1 1]*max(yt)*1.1, '-k',  mean(xt([1 3])), max(yt)*1.15, '*k')
             end
         end
-        
+     
+        if measure == "movspd"
+            ylabel("average speed (mm/s)")
+                    ylim([0 20])
+
+        else 
+            ylabel("average rotation (degrees/s)")
+            ylim([-60 180])
+        end   
 
         x0=10;
         y0=10;
@@ -267,7 +270,6 @@ for task = 1:length(tasks)
         set(gcf,'position',[x0,y0,width,height])
 
 
-        ylim([0 18])
 
         hold off    
     end
@@ -290,11 +292,7 @@ for o = 1: length(odors)
         boxplot(tasks2compare', labels)
         plot(tasks2compare, 'Marker', 'o', 'Color', 'k');
 
-        if measure == "movspd"
-            ylabel("change in speed (mm/s)")
-        else 
-            ylabel("change in turning (degrees/s)")
-        end
+
         box off
         yt = get(gca, 'YTick');
         % axis([xlim    0  ceil(max(yt)*1.2)])
@@ -313,13 +311,22 @@ for o = 1: length(odors)
             end
         end
 
+        if measure == "movspd"
+            ylabel("change in speed (mm/s)")
+            ylim([-3 10])
+
+
+        else 
+            ylabel("change in turning (degrees/s)")
+            ylim([-40 180])
+
+        end
         x0=10;
         y0=10;
         width= 200;
         height= 300
         set(gcf,'position',[x0,y0,width,height])
 
-        ylim([-3 8])
 
         hold off   
 
@@ -408,51 +415,56 @@ purple = [144 103 167]./255;
 cl_colors = {blue, red, ...
              green, brown, purple};
 
-    figure; hold on 
-    rectangle('Position',[0 -45 6 90], 'FaceColor',[0.97 0.97 0.97], 'Edgecolor', 'none')
-
+odors = ["acv", "CS_plus", "CS_minus"]
 %loop through tasks
-for task = 1: length(tasks)
-    odors = fieldnames(data_mean.(tasks{task}));
-    
+for o = 1: length(odors)
+
+
+    figure; hold on 
+    rectangle('Position',[0 -50 6 125], 'FaceColor',[0.97 0.97 0.97], 'Edgecolor', 'none')
+
+    for task = 1: length(tasks)
 
     %loop through odors
-    for o = 1: length(odors)
-
+        if isfield(data_mean.(tasks{task}), odors{o})
         %find the mean and sem trace across fly
-        pop_mean = nanmean(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1);
-        pop_sem = nanstd(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)))./sqrt(size(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1));
-        
-        
-        %plot population data        
-        x = x_axis(1:length(pop_mean))/fr; % set x units
-        range = (x >= -6 & x <0); % find range to use for baseline subtraction
-        h = plot(x,pop_mean(:) - nanmean(pop_mean(range)), 'Color', cl_colors{number}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
-        % j = patch([x fliplr(x)], [(pop_mean(:)'+pop_sem(:)'- nanmean(pop_mean(range))) fliplr(pop_mean(:)'-pop_sem(:)'- nanmean(pop_mean(range)))],color_seq(task))
-
-        plot(x, pop_mean(:) - nanmean(pop_mean(range)) + pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
-        alpha(0.3)
-
-        plot(x, pop_mean(:) - nanmean(pop_mean(range)) - pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
-        alpha(0.3)
-        
-        y = ylim;
-        %plot lines indicating odor delivery and odor_shutoff
-
-
+            pop_mean = nanmean(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1);
+            pop_sem = nanstd(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)))./sqrt(size(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1));
+            
+            
+            %plot population data        
+            x = x_axis(1:length(pop_mean))/fr; % set x units
+            range = (x >= -6 & x <0); % find range to use for baseline subtraction
+            plot_range = (x >= -5 & x < 11);
     
-        xlim([-5 11])
-        ylim([-5 45])
-
-        %set labels
-        if measure == "movspd"  
-            ylabel("Mean change in speed (mm/s)")
-        else 
-            ylabel("Mean change in turning (degrees/s)")
+            h = plot(x,pop_mean(:) - nanmean(pop_mean(range)), 'Color', cl_colors{number}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+            j = patch([x(plot_range) fliplr(x(plot_range))], [(pop_mean(plot_range)+pop_sem(plot_range)- nanmean(pop_mean(range))) fliplr(pop_mean(plot_range)-pop_sem(plot_range)- nanmean(pop_mean(range)))],cl_colors{number})
+            alpha(0.3)
+    
+            % plot(x, pop_mean(:) - nanmean(pop_mean(range)) + pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+            % alpha(0.3)
+            % 
+            % plot(x, pop_mean(:) - nanmean(pop_mean(range)) - pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+            % alpha(0.3)
+            
+            y = ylim;
+            %plot lines indicating odor delivery and odor_shutoff
+    
+    
+        
+            xlim([-5 11])
+            ylim([-20 80])
+    
+            %set labels
+            if measure == "movspd"  
+                ylabel("Change in speed (mm/s)")
+            else 
+                ylabel("Change in turning (degrees/s)")
+            end
+            xlabel("time from odor onset (s)")
+    
+            number = number + 1;
         end
-        xlabel("time from odor onset (s)")
-
-        number = number + 1;
     end
 
     x0=10;
@@ -470,7 +482,7 @@ end
 % set(gcf,'position',[x0,y0,width,height])
 
 
-legend(["ACV", "", "", "CS+ pre","", "", "CS- pre","","", "CS+ post","","" "CS- post"])
+legend(["ACV", "", "CS+ pre", "CS- pre","", "CS+ post","" "CS- post"])
 end
 
 
