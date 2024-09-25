@@ -197,23 +197,19 @@ for fly = 1: length(flies)
             x_beh = ((1:length(mean_beh)) / beh_fr) - (odor_on + odor_delay);
 
             
+            figure; hold on
             for roi = 1: size(mean_norm_trace,1)
-                figure; hold on
-
-                plot(x_time, squeeze(nanmean(mean_norm_trace(roi,:),1)) , "LineWidth", 2, 'Color', cl_colors{1},"DisplayName","somas")
-                yyaxis right
-                plot(x_beh, mean_beh, "DisplayName","behavior")
-            
-                legend
-            
-                title([tasks{task} " " odors{o}])
+                plot(x_time, squeeze(nanmean(mean_norm_trace,1)) , "LineWidth", 2, 'Color', cl_colors{1},"DisplayName","somas")
             end
-%             for roi = 1: size(axon_mean_norm_trace,1)
-%                 if ~isempty(data.axon.F)
-%                     plot(x_time, squeeze(nanmean(axon_mean_norm_trace(roi,:),1)) , "LineWidth", 2, 'Color', cl_colors{2},"DisplayName","axons")
-%                 end
-%             end
-
+            if ~isempty(data.axon.F)
+                plot(x_time, squeeze(nanmean(axon_mean_norm_trace,1)) , "LineWidth", 2, 'Color', cl_colors{2},"DisplayName","axons")
+            end
+            yyaxis right
+            plot(x_beh, mean_beh, "DisplayName","behavior")
+            
+            legend
+            
+            title([tasks{task} " " odors{o}])
 
         end
         

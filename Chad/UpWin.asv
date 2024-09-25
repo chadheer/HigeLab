@@ -77,4 +77,4 @@ data.fly07302024_000.post.fr = 30/6;
 %%
 lobe_ids = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
-lobe_analysis(data, "movspd", lobe_ids)
+lobe_analysis(data, "inthead", lobe_ids)
