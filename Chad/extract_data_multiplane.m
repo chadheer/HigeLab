@@ -13,18 +13,15 @@ cd(folder);
 out_file = dir('extracted_data.mat');
 
 %if an out file already exists, load it and skip all steps
-if ~isempty(out_file)
-    load(out_file.name);
 
-    % change the wd back to the main folder
-    cd(main_folder);
-else
 
 %find and load parameters fild
 param_file = dir('parameters*.mat');
 params = load(param_file.name);
 
 %% load in behavioral data and odor_delivery information
+%find fictrac data output
+
 %find fictrac data output
 fictrac_dat = dir('*fictrac*.dat');
 fictrac_out = load(fictrac_dat.name);
@@ -34,7 +31,6 @@ fps = 100;
 
 %grab odor_delivery output file from thstim if it exists
 stim_file = dir('*odor_delivery*.mat');
-
 
 if isempty(stim_file);
 
@@ -97,8 +93,14 @@ else
     
 end
 
-%% input ROI data and extract fluorescence using Drew's method
 
+%% input ROI data and extract fluorescence using Drew's method
+if ~isempty(out_file)
+    load(out_file.name);
+
+    % change the wd back to the main folder
+    cd(main_folder);
+else
 % Get user input
 prompt = {'Enter image acquisition rate (in fps):','Enter frames per trial:','Enter radius of ROIs'};
 dlgtitle = 'Gathering user input';
@@ -224,8 +226,9 @@ for plane = 1:n_planes
     end
 
     % Get pixels to include within ROI
+
     for i = 1:size(DataROI(plane).roiCount,1)
-        pixCenter = floor([DataROI(plane).pixX(i),DataROI(plane).pixY(i)]);
+        pixCenter = floor([DataROI(plane).pixX(i),DataROI(plane).pixY(i)])
         %get points of a circle with given radius around given center point
         th = 0:pi/50:2*pi;
         x_ROI = (radius * cos(th) + pixCenter(1));
@@ -250,7 +253,8 @@ for plane = 1:n_planes
         in = inpolygon(pixIncludedX2,pixIncludedY2, x_ROI, y_ROI);
         pixIncludedXY = vertcat(pixIncludedX2(in),pixIncludedY2(in));
 
-%         figure;hold on
+
+
 %         plot(x_ROI, y_ROI)
 %         plot(pixIncludedX2, pixIncludedY2)
 %         plot(pixIncludedX2(in), pixIncludedY2(in))
@@ -258,6 +262,7 @@ for plane = 1:n_planes
         % Get the F of each pixel of each ROI for each frame to which the ROI applies
         trial = DataROI(plane).pixZ(i);
         t_frames = trialGuide(trial,2):trialGuide(trial,3);
+        temp_F = [];
 
         for j = 1: size(pixIncludedXY,2) % Number of pixels in the ROI
             temp_F(:,j) = video(t_frames,pixIncludedXY(1,j),pixIncludedXY(2,j));
@@ -278,11 +283,11 @@ for plane = 1:n_planes
             out.axon.dff(roi,t_frames) = (out.axon.F(roi,t_frames)-baseline) ./ baseline;
         else 
   
-        out.F(roi,t_frames) = nanmean(temp_F,2);
-        baseline = nanmean(out.F(roi,pre_odor_frames));
-        baseline_sd = std(out.F(roi,pre_odor_frames));
-        out.Zscore(roi,t_frames) = (out.F(roi,t_frames) - baseline) ./ baseline_sd;
-        out.dff(roi,t_frames) = (out.F(roi,t_frames)-baseline) ./ baseline;
+            out.F(roi,t_frames) = nanmean(temp_F,2);
+            baseline = nanmean(out.F(roi,pre_odor_frames));
+            baseline_sd = std(out.F(roi,pre_odor_frames));
+            out.Zscore(roi,t_frames) = (out.F(roi,t_frames) - baseline) ./ baseline_sd;
+            out.dff(roi,t_frames) = (out.F(roi,t_frames)-baseline) ./ baseline;
         end
         
     end
@@ -297,6 +302,7 @@ out.axon.F(out.F == 0) = NaN;
 out.axon.Zscore(out.F == 0) = NaN;
 out.axon.dff(out.F == 0) = NaN;
 
+end
 %% if ROIs are manually drawn for the average across all trials use this code
 %find and load fluorescence data
 % F_name= dir('*ROIs.mat');
@@ -323,9 +329,6 @@ out.axon.dff(out.F == 0) = NaN;
 %     plot(out.Fc(:,roi))
 % end
 
-
-
-%Descriptive FicTrac variable names assigned below
 drotvcx = fictrac_out(:,2); %delta rotation vector (cam coords) X
 drotvcy = fictrac_out(:,3); %delta rotation vector (cc) Y
 drotvcz = fictrac_out(:,4); %delta rotation vector (cc) Z
@@ -348,26 +351,6 @@ intformot = fictrac_out(:,20); %integrated forward motion (lc) X
 intsidmot = fictrac_out(:,21); %integrated side motion (lc) Y
 time = fictrac_out(:,22); %timestamp
 seq = fictrac_out(:,23); %sequence counter
-
-
-% meanxpos = movmean(intxpos,30)
-% meanypos = movmean(intypos,30)
-% x_diff = diff(meanxpos);
-% y_diff = diff(meanypos);
-% 
-% 
-% immobile = find(abs(x_diff) < 0.001 & abs(y_diff) < 0.001);
-% 
-% temp_xpos = intxpos;
-% temp_ypos = intypos;
-% temp_xpos(immobile) = NaN;
-% temp_ypos(immobile) = NaN;
-% 
-% figure; hold on
-% plot(temp_xpos, temp_ypos)
-% plot(intxpos(immobile), intypos(immobile));
-% plot(movmean(intxpos,30), movmean(intypos,30));
-
 
 %x and fps for plots
 x = (1:length(frame));
@@ -403,6 +386,8 @@ stim_frames = [];
 % before and after trial, and the frame number for each point
 for stim = 1:length(stim_starts)
 
+    odor_delay =0.3; 
+
     trial_start{stim} = frame(find(frame > frame_starts(stim),1));
     trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last'));
     trial_length = trial_end{stim}-trial_start{stim};
@@ -415,6 +400,7 @@ end
 
 
 %collect variables for output and convert to the correct units
+
 out.trial_x = trial_x;
 out.trial_start = trial_start;
 out.trail_end = trial_end;
@@ -422,36 +408,12 @@ out.trial_length = trial_length;
 out.trial_frames = trial_frames;
 out.stim_frames = stim_frames;
 out.movspd = movspd * radius * fps;
-out.movspd(out.movspd < 4) = 0;
 out.drotvlx = drotvlx * fps *180/3.14159;
-out.drotvlx(out.movspd < 4) = 0;
 out.drotvly = drotvly * fps *180/3.14159;
-out.drotvly(out.movspd < 4) = 0;
 out.drotvlz = drotvlz * fps *180/3.14159;
-out.drotvlz(out.movspd < 4) = 0;
 out.movdir = movdir * fps * 180/3.14159;
-out.movdir(out.movspd < 4) = 0;
 out.inthead = inthead * fps *180/3.14159;
-out.inthead(out.movspd < 4) = 0;
-% out.F = F.data.F;
 out.Data_1 = params.Data_1;
-
-x = diff(out.inthead);
-x = [0; x];
-x(x>5000) = x(x>5000) - 36000; % elimante the large changes in turning that are caused when going over 360 degrees
-x(x<-5000) = x(x<-5000) + 36000; % elimante the large changes in turning that occur when going under 0 degrees
-
-out.inthead = movmean(x, 10); % find the mean of ten frames to smooth data slightly
-
-
-x = diff(out.movdir);
-x = [0; x];
-x(x>5000) = x(x>5000) - 36000;
-x(x<-5000) = x(x<-5000) + 36000;
-
-x = x - nanmean(x);
-
-out.movdir = movmean(x, 10)
 
 if exist("odor_id", 'var')
     out.odor_id = odor_id;
@@ -460,11 +422,10 @@ else
         out.odor_id(i) = "odor1";
     end
 end
-
 out.net_move = sqrt(out.drotvly.^2 + out.drotvlx.^2 + out.drotvlz.^2)
 
-% change the wd back to the main folder
 
+% change the wd back to the main folder
 save("extracted_data", "out")
 cd(main_folder);
 

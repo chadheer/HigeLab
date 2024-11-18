@@ -281,7 +281,11 @@ end
 %%
 for o = 1: length(odors)
     if odors{o} == "CS_plus" | odors{o} == "CS_minus"
-        tasks2compare = [delta_measure.pre_pairing.(odors{o}); delta_measure.post_pairing.(odors{o})];
+        if isfield(delta_measure, "pre_pairing");
+            tasks2compare = [delta_measure.pre_pairing.(odors{o}); delta_measure.post_pairing.(odors{o})];
+        else
+            tasks2compare = [delta_measure.pre.(odors{o}); delta_measure.post.(odors{o})];
+        end
 
         figure; hold on
         %compare the pre vs during data
