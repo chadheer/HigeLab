@@ -100,8 +100,13 @@ for fly = 1: length(flies)
         % smooth data
         smooth_data = movmean(data,100);
     
-        %make sure session data is empty
-        clear session_data;
+        if contains(tasks{task}, "left");
+            tasks{task} = tasks{task}(1:end-5);
+
+        elseif contains(tasks{task},"right");
+            tasks{task} = tasks{task}(1:end-6);
+
+        end
         
         %cycle through trials 
         for stim = 1:length(trial_frames);
@@ -111,13 +116,13 @@ for fly = 1: length(flies)
             % data to the x_axis, so that the first odor_delivery frame is
             % at x_axis == 1
             if trial_frames{stim}(end) > length(data)
-                session_data.(odor_id{stim})(fly,task,stim,length_x(ismember(x_axis, trial_x{stim}(1:find(trial_frames{stim} == length(data)))))) = smooth_data(trial_frames{stim}(1:find(trial_frames{stim} == length(data))));
+                session_data.(tasks{task}).(odor_id{stim})(fly,stim,length_x(ismember(x_axis, trial_x{stim}(1:find(trial_frames{stim} == length(data)))))) = smooth_data(trial_frames{stim}(1:find(trial_frames{stim} == length(data))));
            
             %else grab the data for the trialand align that
             % data to the x_axis, so that the first odor_delivery frame is
             % at x_axis == 1
             else
-                session_data.(odor_id{stim})(fly,task,stim,length_x(ismember(x_axis, trial_x{stim}))) = smooth_data(trial_frames{stim});
+                session_data.(tasks{task}).(odor_id{stim})(fly,stim,length_x(ismember(x_axis, trial_x{stim}))) = smooth_data(trial_frames{stim});
             end
             % plot(smooth_data(trial_frames{stim}), 'Color', [.7 .7 .7])
             % session_x(fly,task,stim,1:length(trial_x)) = trial_x{stim};
@@ -126,24 +131,16 @@ for fly = 1: length(flies)
 
         % if task contains right or left, remove direction so that tasks
         % across flies are the same.
-        if contains(tasks{task}, "left");
-            tasks{task} = tasks{task}(1:end-5);
 
-        elseif contains(tasks{task},"right");
-            tasks{task} = tasks{task}(1:end-6);
-
-        end
-        
-       
         %find the odor ids
-        odors = fieldnames(session_data);
+        odors = fieldnames(session_data.(tasks{task}));
         
         %loop through each odor
         for o = 1: length(odors);
-            session_data.(odors{o})(session_data.(odors{o}) == 0) = NaN;
+            session_data.(tasks{task}).(odors{o})(session_data.(tasks{task}).(odors{o}) == 0) = NaN;
             %find the mean and SEM for data for this fly
-            data_mean.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(odors{o})(fly,task,:,:)))) = nanmean(squeeze(session_data.(odor_id{o})(fly,task,:,:)));
-            data_sem.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(odors{o})(fly,task,:,:)))) = nanstd(squeeze(session_data.(odor_id{o})(fly,task,:,:)))./sqrt(size(squeeze(session_data.(odors{o})(fly,task,:,:)),1));
+            data_mean.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))) = nanmean(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)));
+            data_sem.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))) = nanstd(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))./sqrt(size(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)),1));
             
             
             %plot mean of data across trials +- sem for this fly
@@ -191,8 +188,8 @@ for fly = 1: length(flies)
             this_odor = (odor_id == string(odors{o}));
             this_odor = this_odor(1:size(trial_frames,2));
 
-            lap_means.(tasks{task}).(odors{o})(fly,2,1:sum(this_odor)) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001:5000+during),4));
-            lap_means.(tasks{task}).(odors{o})(fly,1,1:sum(this_odor)) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
+            lap_means.(tasks{task}).(odors{o})(fly,2,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001:5000+during),3));
+            lap_means.(tasks{task}).(odors{o})(fly,1,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
 
 
             
@@ -202,7 +199,12 @@ for fly = 1: length(flies)
 
 
             delta_measure.(tasks{task}).(odors{o})(fly) = comparisons.(tasks{task}).(odors{o})(fly,2) - comparisons.(tasks{task}).(odors{o})(fly,1);
-            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001+ delay:5000+during),4)) - squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
+            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001+ delay:5000+during),3)) - squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
+            
+            % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),1) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
+            % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),2) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001+ delay:5000+during),4));
+            
+            session_data.(tasks{task}).(odors{o})(fly,1:sum(this_odor),:) = session_data.(tasks{task}).(odors{o})(fly,this_odor,:);
 
         end
         
@@ -333,7 +335,51 @@ for o = 1: length(odors)
     end
 end
 
-
+%%
+% 
+% if measure == "inthead";
+%     thresh = 25;
+%     limits = [-100 100];
+% else
+%     thresh = 3;
+%     limits = [0 15];
+% end
+% 
+% for task = 1: length(tasks)
+%     odors = fieldnames(lap_means.(tasks{task}));
+% 
+%     for o = 1 : length(odors)
+%         sig_responses.(tasks{task}).(odors{o}) = [];
+%         no_responses.(tasks{task}).(odors{o}) = [];
+% 
+%         for fly = 1: size(delta_trial.(tasks{task}).(odors{o}),1)
+%             sig_fly.(tasks{task}).(odors{o})(fly) = 0;
+% 
+%             for trial = 1: size(delta_trial.(tasks{task}).(odors{o}),2)
+%                 if delta_trial.(tasks{task}).(odors{o})(fly,trial) >= thresh
+%                     sig_responses.(tasks{task}).(odors{o}) = [sig_responses.(tasks{task}).(odors{o}) squeeze(session_data.(tasks{task}).(odors{o})(fly, trial, :))];
+%                     sig_fly.(tasks{task}).(odors{o})(fly) = sig_fly.(tasks{task}).(odors{o})(fly) + 1;
+%                 else
+%                      no_responses.(tasks{task}).(odors{o}) = [no_responses.(tasks{task}).(odors{o}) squeeze(session_data.(tasks{task}).(odors{o})(fly, trial, :))];
+%                 end
+%             end
+% 
+%         end
+%         figure;
+%         imagesc(sig_responses.(tasks{task}).(odors{o})')
+%         xlim([4000 6000])
+%         figure;
+%         imagesc(no_responses.(tasks{task}).(odors{o})')
+%         xlim([4000 6000])
+% 
+%         figure; hold on
+%         plot(nanmean(no_responses.(tasks{task}).(odors{o}),2));
+%         plot(nanmean(sig_responses.(tasks{task}).(odors{o}),2));
+% 
+%         ylim(limits)
+%         title([tasks{task} ' ' odors{o}])
+%     end
+% end
 
 
 %%
@@ -400,7 +446,6 @@ end
 
 
 
-
 %% 
 
 %find population mean and sem for straight and side trials
@@ -453,13 +498,16 @@ for o = 1: length(odors)
     
         
             xlim([-5 11])
-            ylim([-20 80])
+
     
             %set labels
             if measure == "movspd"  
                 ylabel("Change in speed (mm/s)")
+                ylim([-2 8])
             else 
                 ylabel("Change in turning (degrees/s)")
+                ylim([-20 80])
+
             end
             xlabel("time from odor onset (s)")
     
@@ -472,6 +520,7 @@ for o = 1: length(odors)
     width= 300;
     height= 200;
     set(gcf,'position',[x0,y0,width,height])
+    legend
 end
 
 
@@ -482,7 +531,7 @@ end
 % set(gcf,'position',[x0,y0,width,height])
 
 
-legend(["ACV", "", "CS+ pre", "CS- pre","", "CS+ post","" "CS- post"])
+
 end
 
 
