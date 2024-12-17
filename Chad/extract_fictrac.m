@@ -18,7 +18,6 @@ fictrac_out = load(fictrac_dat.name);
 %set radius of ball
 radius = 4.5;
 fps = 100;
-
 %grab odor_delivery output file from thstim if it exists
 stim_file = dir('*odor_delivery*.mat');
 
@@ -145,7 +144,9 @@ for stim = 1:length(stim_starts)
     elseif odor_id{stim} == "OCT";
         odor_delay = 2 * fps;
     elseif odor_id{stim} == "acv";
-        odor_delay = 1 * fps;
+        odor_delay = 0.3 * fps;
+    elseif odor_id{stim} == "oct" | odor_id{stim} == "mch";
+        odor_delay = 0.3 * fps;
     end
 
 
