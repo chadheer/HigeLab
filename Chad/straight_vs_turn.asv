@@ -211,7 +211,7 @@ for fly = 1: length(flies)
 end
 
 
-%% boxplot comparing pre, ACV_ straight, OCT_pre, and OCT_straight odor delivery
+%% boxplot comparing pre, ACV_ left, OCT_pre, and OCT_post odor delivery
 
 %loop through each task
 for task = 1:length(tasks)

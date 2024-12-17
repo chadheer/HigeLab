@@ -211,7 +211,7 @@ for fly = 1: length(flies)
 end
 
 
-%% boxplot comparing pre, ACV_ straight, OCT_pre, and OCT_straight odor delivery
+%% boxplot comparing pre, ACV_ left, OCT_pre, and OCT_post odor delivery
 
 %loop through each task
 for task = 1:length(tasks)
@@ -256,11 +256,11 @@ for task = 1:length(tasks)
      
         if measure == "movspd"
             ylabel("average speed (mm/s)")
-                    ylim([0 20])
+                    ylim([0 15])
 
         else 
             ylabel("average rotation (degrees/s)")
-            ylim([-60 180])
+            ylim([-60 100])
         end   
 
         x0=10;
@@ -313,12 +313,12 @@ for o = 1: length(odors)
 
         if measure == "movspd"
             ylabel("change in speed (mm/s)")
-            ylim([-3 10])
+            ylim([-6 6])
 
 
         else 
             ylabel("change in turning (degrees/s)")
-            ylim([-40 180])
+            ylim([-60 100])
 
         end
         x0=10;
@@ -458,8 +458,12 @@ for o = 1: length(odors)
             %set labels
             if measure == "movspd"  
                 ylabel("Change in speed (mm/s)")
+                xlim([-5 11])
+                ylim([-4 5])
             else 
                 ylabel("Change in turning (degrees/s)")
+                xlim([-5 11])
+                ylim([-50 90])
             end
             xlabel("time from odor onset (s)")
     

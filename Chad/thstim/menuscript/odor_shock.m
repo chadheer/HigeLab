@@ -55,6 +55,12 @@ end
  
  nonstim=nonstim';%%Used with odor NOT paired with stim
 
+ odor.shock.stimI = parameter.stimI;
+ odor.shock.stimD = parameter.stimD;
+ odor.shock.stimN = parameter.stimN;
+ odor.shock.isi = parameter.isi;
+ odor.shock.preS = parameter.preS;
+
 %% Generating odor stim
 if get(randomodorh,'value') &&  size(odortable,1)>2 %Randomize odor
     
@@ -95,26 +101,20 @@ for i=1:parameter.numt;
     channel = ['port0/line' num2str(thisValve - 1)];
 
     addDigitalChannel(s,NIdaq.dev, channel, 'OutputOnly'); %add odor valve port
-%     SS=MakeDefaultAISession(NIdaq.dev,aichannels);
-    SS=daq.createSession('ni');
 
-%     ThisChName={SS.Channels.Name}';% Must be called before adding ao channels
-    SS.addAnalogOutputChannel(NIdaq.dev,Sout,'voltage');
+    ss=daq.createSession('ni');
+
+    shock_channel = ['port0/line3'];
+    addDigitalChannel(ss,NIdaq.dev, shock_channel, 'OutputOnly'); %add shock port
+
+
     outputSingleScan(s,1);
 
     % Sout is set in thstim.m.
     % Current setting is:
     %   ao0: LED command
-    SS.Rate=parameter.ai_sr;
-    if thisStim
-        queueOutputData(SS,[stim]);
-    else
-        queueOutputData(SS,[nonstim]);
-    end
+    
     fid=fopen('DataLog.bin','w+');%temporary file to log data
-    SS.NotifyWhenDataAvailableExceeds=parameter.dur*parameter.ai_sr;
-    SS.addlistener('DataAvailable',...
-        @(~,event) fwrite(fid,[event.TimeStamps,event.Data],'single'));
 
     %% Change the status indicator
     set(statush, 'String','Running',...
@@ -136,22 +136,7 @@ for i=1:parameter.numt;
     %% Start acquisition & valve flipping
     tic
     datatime=now;
-    startBackground(SS);
 
-    toc
-    if (u.NumBytesAvailable > 0) & thisStim
-        data = read(u, u.NumBytesAvailable, "string");
-        split = splitlines(data);
-        last_line = split{end-1};
-        toks = strsplit(last_line, ',');
-        
-        if ((length(toks) < 24) | (toks(1) ~= "FT"))
-            print("Bad read")
-        else
-            odor.light_on(i) = str2num(toks{2})
-        end
-    end
-    toc
     flush(u);
     pause(parameter.preO - toc);
     
@@ -173,6 +158,31 @@ for i=1:parameter.numt;
     toc
 
     pause(FillTime) %fill time set in thstim
+
+    pause(parameter.preS - toc)
+    if thisStim
+        outputSingleScan(ss,1) 
+        pause(1)
+    end
+    toc
+    outputSingleScan(ss,0) 
+
+    toc
+
+    if (u.NumBytesAvailable > 0) & thisStim
+        data = read(u, u.NumBytesAvailable, "string");
+        split = splitlines(data);
+        line = split{end-1};
+        toks = strsplit(line, ',');
+        
+        if ((length(toks) < 24) | (toks(1) ~= "FT"))
+            print("Bad read")
+        else
+            odor.shock.on(i) = str2num(toks{2})
+        end
+    end
+    toc
+
 %     StartScanImage_SS
     flush(u);
     pause(parameter.odorD + parameter.preO - toc)
