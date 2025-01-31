@@ -88,7 +88,7 @@ for fly = 1: length(flies)
         num_t = size(data.odor_id,1);
         recording_length = floor(size(data.F,2)/num_t);
         
-        trial_trace_axon = NaN(num_t, size(data.axon.F,1), recording_length);
+%         trial_trace_axon = NaN(num_t, size(data.axon.F,1), recording_length);
                 trial_trace = NaN(num_t, size(data.F,1), recording_length);
 
         %create x_axis to align trials to
@@ -109,11 +109,10 @@ for fly = 1: length(flies)
         
             for roi = 1: size(data.F,1)
                 if ~isempty(data.F)
-                    trial_trace(trial, roi, :) = (data.dff(roi, (trial-1) * recording_length  + 1:trial * recording_length));
-                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 30, "sgolay", 7);
+                    trial_trace(trial, roi, :) = (data.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
+                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 30, "sgolay", 5);
                 end
             end
-            trial_trace = reshape(data.dff,[length(trial_frames)])
             
             for roi = 1: size(data.axon.F,1)
                 

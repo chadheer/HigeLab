@@ -1,0 +1,487 @@
+%% comparing FOB behavioral responses from straight and side delivery of odors
+%Chad Heer: Hige Lab 11/28/2023
+
+
+%INPUTS:
+% in = output of extract_fictrac for all flies. should be organized as
+% data.fly.task.measure 
+% measure = string of which measure you want to analyze. 
+
+%Generates figures of average resonse of each fly to each task
+%odor, population average response of all flies to both conditions, and
+%boxplot with annova of average measure pre-deliver vs during delivery for
+%each task
+
+%%
+function [] = plot_f_and_beh(in, measure)
+
+%determine fly names
+flies = fieldnames(in);
+%determine task names
+tasks = fieldnames(in.(flies{1}));
+
+fr = 100;           % set frame rate
+
+%create x/axis in seconds
+x_axis = (1: length(in.(flies{1}).(tasks{1}).(measure)))/fr;
+%custom color sequence for plots
+color_seq = ["b", "r", "g", "m"];
+
+blue = [114 147 203]./255;
+red = [211 94 96]./255;
+green = [132 186 91]./255;
+brown = [171 104 87]./255;
+purple = [144 103 167]./255;
+cl_colors = {blue, red, ...
+             green, brown, purple,blue, red, ...
+             green, brown, purple};
+
+%loop through each fly
+for fly = 1: length(flies)
+    %find tasks for given fly
+    tasks = fieldnames(in.(flies{fly}));
+    
+    % figure; hold on;
+    
+    %loop through each task
+    for task = 1: length(tasks)
+
+        % find the odor_id for a given task, and asign the delay for the
+        % odor delivery for that task
+
+        odor_id = in.(flies{fly}).(tasks{task}).odor_id;
+
+        
+        if contains(tasks{task},"left") & measure ~= "movspd";  %change the sign so that the odor delivery direction is always positive
+            in.(flies{fly}).(tasks{task}).(measure) = -in.(flies{fly}).(tasks{task}).(measure);
+        end
+
+        if  measure == "inthead"; % find the difference between each points heading direction to determine the turning of the animal
+            x = diff(in.(flies{fly}).(tasks{task}).(measure));
+            x = [0; x];
+            x(x>5000) = x(x>5000) - 36000; % elimante the large changes in turning that are caused when going over 360 degrees
+            x(x<-5000) = x(x<-5000) + 36000; % elimante the large changes in turning that occur when going under 0 degrees
+
+            in.(flies{fly}).(tasks{task}).(measure) = movmean(x, 10); % find the mean of ten frames to smooth data slightly
+
+
+        elseif measure == "movdir" % do the same as above but for moving direction
+            x = diff(in.(flies{fly}).(tasks{task}).(measure));
+            x = [0; x];
+            x(x>5000) = x(x>5000) - 36000;
+            x(x<-5000) = x(x<-5000) + 36000;
+
+            x = x - nanmean(x);
+
+            in.(flies{fly}).(tasks{task}).(measure) = movmean(x, 10)
+            
+        end
+        
+        %if odor id is provided, grab it, else assign it as odor1.
+        a = fieldnames(in.(flies{fly}).(tasks{task}));
+        if ~any(ismember(a, "odor_id"));
+            odor_id = "odor1";
+
+            % if an odor was paired, designate odors as either CS+ or CS- 
+        elseif any(ismember(a, "paired_odor"));
+            odor_id = in.(flies{fly}).(tasks{task}).odor_id;
+            z = find(ismember(odor_id, in.(flies{fly}).(tasks{task}).paired_odor));
+            y = find(~ismember(odor_id, in.(flies{fly}).(tasks{task}).paired_odor));
+ 
+            [odor_id{z}] = deal('CS_plus');
+            [odor_id{y}] = deal('CS_minus');
+
+        else
+            %if there is not a paired odor assign odor_id 
+            odor_id = in.(flies{fly}).(tasks{task}).odor_id;
+        end
+
+        %grab variables 
+        data = in.(flies{fly}).(tasks{task}).(measure);
+        trial_length(fly,task) = in.(flies{fly}).(tasks{task}).trial_length;
+        trial_frames = in.(flies{fly}).(tasks{task}).trial_frames;
+        trial_x = in.(flies{fly}).(tasks{task}).trial_x;
+        
+        %create x_axis to align trials to
+        x_axis = -5000:5000;
+        length_x = 1:length(x_axis);
+
+        % smooth data
+        smooth_data = movmean(data,100);
+
+        % reshape and smooth F, and zscore into individual trials
+        rois = size(in.(flies{fly}).(tasks{task}).F,3);
+        nTrials = length(trial_frames);
+        fpt = size(in.(flies{fly}).(tasks{task}).F,1);
+        x_F = (1:fpt)/ in.(flies{fly}).(tasks{task}).fr - in.(flies{fly}).(tasks{task}).Data_1.parameter.preO;
+
+        trial_F = in.(flies{fly}).(tasks{task}).F;
+        trial_Zscore = in.(flies{fly}).(tasks{task}).Zscore;
+    
+        if contains(tasks{task}, "left");
+            tasks{task} = tasks{task}(1:end-5);
+
+        elseif contains(tasks{task},"right");
+            tasks{task} = tasks{task}(1:end-6);
+
+        end
+        
+        %cycle through trials 
+        for stim = 1:length(trial_frames);
+            
+            % if the trial_frames extend beyond the length of the data,
+            % grab the frames up until the last data point and align that
+            % data to the x_axis, so that the first odor_delivery frame is
+            % at x_axis == 1
+            if trial_frames{stim}(end) > length(data)
+                session_data.(tasks{task}).(odor_id{stim})(fly,stim,length_x(ismember(x_axis, trial_x{stim}(1:find(trial_frames{stim} == length(data)))))) = smooth_data(trial_frames{stim}(1:find(trial_frames{stim} == length(data))));
+           
+            %else grab the data for the trialand align that
+            % data to the x_axis, so that the first odor_delivery frame is
+            % at x_axis == 1
+            else
+                session_data.(tasks{task}).(odor_id{stim})(fly,stim,length_x(ismember(x_axis, trial_x{stim}))) = smooth_data(trial_frames{stim});
+            end
+            % plot(smooth_data(trial_frames{stim}), 'Color', [.7 .7 .7])
+            % session_x(fly,task,stim,1:length(trial_x)) = trial_x{stim};
+
+        end
+
+        % if task contains right or left, remove direction so that tasks
+        % across flies are the same.
+
+        %find the odor ids
+        odors = fieldnames(session_data.(tasks{task}));
+        
+
+
+
+        %loop through each odor
+        for o = 1: length(odors);
+            session_data.(tasks{task}).(odors{o})(session_data.(tasks{task}).(odors{o}) == 0) = NaN;
+            %find the mean and SEM for data for this fly
+            data_mean.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))) = nanmean(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)));
+            data_sem.(tasks{task}).(odors{o})(fly,1:length(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))) = nanstd(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)))./sqrt(size(squeeze(session_data.(tasks{task}).(odors{o})(fly,:,:)),1));
+            
+            
+            %plot mean of data across trials +- sem for this fly
+            x = x_axis(1:length(data_mean.(tasks{task}).(odors{o})))/fr;
+            % plot(x, squeeze(data_mean.(tasks{task}).(odors{o})(fly,:)) + squeeze(data_sem.(tasks{task}).(odors{o})(fly,:)),'k', "HandleVisibility","off")
+            % plot(x, squeeze(data_mean.(tasks{task}).(odors{o})(fly,:)) - squeeze(data_sem.(tasks{task}).(odors{o})(fly,:)),'k', "HandleVisibility","off")
+            % plot(x, squeeze(data_mean.(tasks{task}).(odors{o})(fly,:)), 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+            % legend()
+            % 
+            % %label axes 
+            % if measure == "movspd"
+            %     ylabel("average speed mm/s")
+            % else 
+            %     ylabel("average rotation degrees/s")
+            % end
+            % xlabel("times (s)")
+            % title(flies{fly});
+            % % session_data(session_data == 0) = NaN;
+            % %find average data for pre, during and post stimulus
+            % 
+            % %if the measure is inthead, we just want to look at the 3
+            % %seconds before vs after odor delivery 
+%             if measure == "inthead"
+%                 delay = 0 *fr;
+%                 during = 3 * fr;
+%             else
+%                 % during = trial_length(fly,task);
+%                 delay = 1 * fr;
+%                 during = 4 * fr;
+%             end
+
+            delay = 0;
+            during = 3 *fr;
+
+
+            % find the mean activity prior to, during, and after
+            % odor_delivery accounting for odor delivery delay for each
+            % task
+            % task_mean.(tasks{task})(1,fly,1:size(session_data.(odors{o}),3)) = nanmean(squeeze(session_data.(odors{o})(fly,task,:, 5001-trial_length(fly,task):5000)),2);
+            % task_mean.(tasks{task})(2,fly,1:size(session_data.(odors{o}),3)) = nanmean(squeeze(session_data.(odors{o})(fly,task,:,5001:5000 + during)),2);
+            % task_mean.(tasks{task})(3,fly,1:size(session_data.(odors{o}),3)) = nanmean(squeeze(session_data.(odors{o})(fly,task,:,5000 + trial_length(fly,task): end)),2);
+            % 
+            % % make any 0 points, NaNs
+            % task_mean.(tasks{task})(task_mean.(tasks{task}) == 0) = NaN;
+            % 
+            % %find the mean response for each fly
+            % task_response.(tasks{task}).(odors{o}) = squeeze(nanmean(task_mean.(tasks{task}),3));
+
+            this_odor = (odor_id == string(odors{o}));
+            this_odor = this_odor(1:size(trial_frames,2));
+
+            lap_means.(tasks{task}).(odors{o})(fly,2,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001:5000+during),3));
+            lap_means.(tasks{task}).(odors{o})(fly,1,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
+
+            comparisons.(tasks{task}).(odors{o})(fly,1) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,1:5000),2);
+            comparisons.(tasks{task}).(odors{o})(fly,2) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5001+ delay:5000 + during),2);
+            comparisons.(tasks{task}).(odors{o})(fly,3) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5000 + trial_length(fly,task):end),2);
+
+
+            delta_measure.(tasks{task}).(odors{o})(fly) = comparisons.(tasks{task}).(odors{o})(fly,2) - comparisons.(tasks{task}).(odors{o})(fly,1);
+            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001+ delay:5000+during),3)) - squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
+            
+            % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),1) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
+            % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),2) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001+ delay:5000+during),4));
+            
+            session_data.(tasks{task}).(odors{o})(fly,1:sum(this_odor),:) = session_data.(tasks{task}).(odors{o})(fly,this_odor,:);
+
+
+
+            F(:,1:sum(this_odor),:) = trial_F(:,this_odor,:);
+            Zscore(:,1:sum(this_odor),:)= trial_Zscore(:,:,this_odor);
+
+            mean_F = squeeze(nanmean(F,2))';
+            SEM_F = (squeeze(nanstd(F,0,2))./sqrt(size(F,2)))';
+            plot_range = (x_F >= -5 & x_F < 11);
+            
+            mean_Z = squeeze(nanmean(Zscore,2))';
+            SEM_Z = (squeeze(nanstd(Zscore,0,2))./sqrt(size(Zscore,2)))';
+
+            
+            figure; hold on
+            for roi = 1: rois;
+                smooth_mean = smooth(mean_F(roi,:),31,'sgolay',5);
+                h = plot(x_F(plot_range),smooth_mean(plot_range), 'Color', cl_colors{roi}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+                h = plot(x_F(plot_range),mean_Z(roi,plot_range), 'Color', cl_colors{roi}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+                j = patch([x_F(plot_range) fliplr(x_F(plot_range))], [(mean_Z(roi,plot_range)+SEM_Z(roi,plot_range)) fliplr(mean_Z(roi,plot_range)-SEM_Z(roi,plot_range))],cl_colors{roi})
+                alpha(0.3)
+            end
+     
+            
+            
+            %plot population data        
+            x = x_axis(1:length(pop_mean))/fr; % set x units
+            range = (x >= -6 & x <0); % find range to use for baseline subtraction
+            plot_range = (x >= -5 & x < 11);
+    
+            h = plot(x,pop_mean(:) - nanmean(pop_mean(range)), 'Color', cl_colors{number}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+            j = patch([x(plot_range) fliplr(x(plot_range))], [(pop_mean(plot_range)+pop_sem(plot_range)- nanmean(pop_mean(range))) fliplr(pop_mean(plot_range)-pop_sem(plot_range)- nanmean(pop_mean(range)))],cl_colors{number})
+            alpha(0.3)
+        end
+        
+    end
+
+end
+
+
+%% boxplot comparing pre, ACV_ straight, OCT_pre, and OCT_straight odor delivery
+
+%loop through each task
+for task = 1:length(tasks)
+    %find the odor ids
+    odors = fieldnames(comparisons.(tasks{task}));
+
+    %loop through each odor
+    for o = 1: length(odors)
+        %grab the mean activity prior to, and during odor_delivery
+        %this can be adjusted to whatever you want to run stats on
+        tasks2compare = [squeeze(comparisons.(tasks{task}).(odors{o})(:,1)) squeeze(comparisons.(tasks{task}).(odors{o})(:,2))];
+
+        figure; hold on
+        %compare the pre vs during data
+        [p,t,stats] = anova1(tasks2compare)
+        [c,m,h,gnames] = multcompare(stats);
+
+        % create and label boxplots for data
+        figure; hold on
+
+        labels = ["before", "during"];
+        boxplot(tasks2compare, labels)
+        plot(tasks2compare', 'Marker', 'o', 'Color', 'k');
+
+        box off
+        yt = get(gca, 'YTick');
+        % axis([xlim    0  ceil(max(yt)*1.2)])
+        xt = get(gca, 'XTick');
+        title([char(tasks{task}) ' ' char(odors{o})]);
+
+        hold on
+
+        %if there are any measures that are significantly different, plot *
+        % with line indicating the comparison
+        if any(c(:,end) < 0.05)
+            sig_pairs = c(c(:,end) < 0.05,:);
+            for pair = 1: size(sig_pairs,1);
+                plot(xt([sig_pairs(pair, 1) sig_pairs(pair,2)]), [1 1]*max(yt)*1.05, '-k',  mean(xt([sig_pairs(pair,1) sig_pairs(pair,2)])), max(yt)*1.10, '*k')
+        % plot(xt([1 3]), [1 1]*max(yt)*1.1, '-k',  mean(xt([1 3])), max(yt)*1.15, '*k')
+            end
+        end
+     
+        if measure == "movspd"
+            ylabel("average speed (mm/s)")
+                    ylim([0 20])
+
+        else 
+            ylabel("average rotation (degrees/s)")
+            ylim([-60 180])
+        end   
+
+        x0=10;
+        y0=10;
+        width= 200;
+        height= 300
+        set(gcf,'position',[x0,y0,width,height])
+
+
+
+        hold off    
+    end
+
+end
+
+%%
+for o = 1: length(odors)
+    if odors{o} == "CS_plus" | odors{o} == "CS_minus"
+        if isfield(delta_measure, "pre_pairing");
+            tasks2compare = [delta_measure.pre_pairing.(odors{o}); delta_measure.post_pairing.(odors{o})];
+        else
+            tasks2compare = [delta_measure.pre.(odors{o}); delta_measure.post.(odors{o})];
+        end
+
+        figure; hold on
+        %compare the pre vs during data
+        [p,t,stats] = anova1(tasks2compare')
+        [c,m,h,gnames] = multcompare(stats);
+
+        % create and label boxplots for data
+        figure; hold on
+        labels = ["pre", "post"];
+        boxplot(tasks2compare', labels)
+        plot(tasks2compare, 'Marker', 'o', 'Color', 'k');
+
+
+        box off
+        yt = get(gca, 'YTick');
+        % axis([xlim    0  ceil(max(yt)*1.2)])
+        xt = get(gca, 'XTick');
+        title(odors{o});
+
+        hold on
+
+        %if there are any measures that are significantly different, plot *
+        % with line indicating the comparison
+        if any(c(:,end) < 0.05)
+            sig_pairs = c(c(:,end) < 0.05,:);
+            for pair = 1: size(sig_pairs,1);
+                plot(xt([sig_pairs(pair, 1) sig_pairs(pair,2)]), [1 1]*max(yt)*1.05, '-k',  mean(xt([sig_pairs(pair,1) sig_pairs(pair,2)])), max(yt)*1.10, '*k')
+        % plot(xt([1 3]), [1 1]*max(yt)*1.1, '-k',  mean(xt([1 3])), max(yt)*1.15, '*k')
+            end
+        end
+
+        if measure == "movspd"
+            ylabel("change in speed (mm/s)")
+            ylim([-3 10])
+
+
+        else 
+            ylabel("change in turning (degrees/s)")
+            ylim([-40 180])
+
+        end
+        x0=10;
+        y0=10;
+        width= 200;
+        height= 300
+        set(gcf,'position',[x0,y0,width,height])
+
+
+        hold off   
+
+    end
+end
+
+
+
+%% 
+
+%find population mean and sem for straight and side trials
+label = {};
+number = 1;
+
+blue = [114 147 203]./255;
+red = [211 94 96]./255;
+green = [132 186 91]./255;
+brown = [171 104 87]./255;
+purple = [144 103 167]./255;
+cl_colors = {blue, red, ...
+             green, brown, purple};
+
+odors = ["acv", "CS_plus", "CS_minus"]
+%loop through tasks
+for o = 1: length(odors)
+
+
+    figure; hold on 
+    rectangle('Position',[0 -50 6 125], 'FaceColor',[0.97 0.97 0.97], 'Edgecolor', 'none')
+
+    for task = 1: length(tasks)
+
+    %loop through odors
+        if isfield(data_mean.(tasks{task}), odors{o})
+        %find the mean and sem trace across fly
+            pop_mean = nanmean(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1);
+            pop_sem = nanstd(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)))./sqrt(size(squeeze(data_mean.(tasks{task}).(odors{o})(:,:)),1));
+            
+            
+            %plot population data        
+            x = x_axis(1:length(pop_mean))/fr; % set x units
+            range = (x >= -6 & x <0); % find range to use for baseline subtraction
+            plot_range = (x >= -5 & x < 11);
+    
+            h = plot(x,pop_mean(:) - nanmean(pop_mean(range)), 'Color', cl_colors{number}, 'LineWidth',2, 'DisplayName',[char(tasks{task}) ' ' char(odors{o})]);
+            j = patch([x(plot_range) fliplr(x(plot_range))], [(pop_mean(plot_range)+pop_sem(plot_range)- nanmean(pop_mean(range))) fliplr(pop_mean(plot_range)-pop_sem(plot_range)- nanmean(pop_mean(range)))],cl_colors{number})
+            alpha(0.3)
+    
+            % plot(x, pop_mean(:) - nanmean(pop_mean(range)) + pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+            % alpha(0.3)
+            % 
+            % plot(x, pop_mean(:) - nanmean(pop_mean(range)) - pop_sem(:), 'Color', cl_colors{number}, 'DisplayName', '')
+            % alpha(0.3)
+            
+            y = ylim;
+            %plot lines indicating odor delivery and odor_shutoff
+    
+    
+        
+            xlim([-5 11])
+
+    
+            %set labels
+            if measure == "movspd"  
+                ylabel("Change in speed (mm/s)")
+                ylim([-2 8])
+            else 
+                ylabel("Change in turning (degrees/s)")
+                ylim([-20 80])
+
+            end
+            xlabel("time from odor onset (s)")
+    
+            number = number + 1;
+        end
+    end
+
+    x0=10;
+    y0=10;
+    width= 300;
+    height= 200;
+    set(gcf,'position',[x0,y0,width,height])
+    legend
+end
+
+
+% x0=10;
+% y0=10;
+% width= 400;
+% height= 300;
+% set(gcf,'position',[x0,y0,width,height])
+
+
+
+end
+
+
