@@ -7,7 +7,7 @@
 % %     Select .dat file created by FicTrac;
 % %     Prompt2 :
 % %     Select .txt log frames file created by FicTrac;
-% %     Prompt3 : 
+% %     Prompt3 : ths
 % %     Select .csv file from ImageJ 
 % %     Change "Output Type" to "Column vectors"
 % %     Then select "Import Data"
@@ -23,6 +23,9 @@ file = uigetfile('*.dat');
 fictrac_out = load(file);
 radius = 4.5;
 
+
+
+
 frame = fictrac_out(:,1); %frame counter
 
 stim_file = uigetfile;
@@ -34,6 +37,7 @@ if stim_file(end-3:end) == '.mat';
     frame_ends = find(ismember(frame,stim_end));
     odor_id = odor_delivery.odor.id;
 else
+
     vidLog = uigetfile('*.txt');
     log_frames = load(vidLog);
     stim_f = fopen(stim_file, 'r');
@@ -121,6 +125,15 @@ x = x- nanmean(x);
 
 inthead = movmean(x, 10);
 
+inthead = inthead * fps * 180/3.14159;
+
+x = diff(inthead);
+x = [0; x];
+x(x>5000) = x(x>5000) - 36000;
+x(x<-5000) = x(x<-5000) + 36000;
+
+inthead = movmean(x, 10);
+
 if ~exist("odor_id", "var")
     odor_id = "odor1";
 end
@@ -190,3 +203,22 @@ for o = 1: length(odors)
     line([trial_length, trial_length], [min(inthead),max(inthead)]);
     line([2*trial_length, 2*trial_length], [min(inthead),max(inthead)]);
 end
+%%
+
+figure; hold on
+
+for o = 1: length(odors)
+    max_length = max(cell2mat(cellfun(@size,trial_frames.(odors{o}),'uni',false)));
+    session_turn = NaN(length(stim_starts), max_length);
+    for stim = 1:length(trial_frames.(odors{o}));
+        session_turn(stim,1:length(trial_frames.(odors{o}){stim})) = inthead(trial_frames.(odors{o}){stim});
+        % plot(movdir(trial_frames.(odors{o}){stim}), 'Color', [.7 .7 .7])
+    end
+    plot(nanmean(session_turn), 'DisplayName', odors{o})
+    sem = nanstd(session_turn)./sqrt(size(session_turn,1));
+    % plot(nanmean(session_turn)+sem,'r')
+    % plot(nanmean(session_turn)-sem, 'r')
+    line([trial_length, trial_length], [min(inthead),max(inthead)]);
+    line([2*trial_length, 2*trial_length], [min(inthead),max(inthead)]);
+end
+

@@ -144,7 +144,7 @@ for i=1:parameter.numt;
         if ((length(toks) < 24) | (toks(1) ~= "FT"))
             print("Bad read")
         else
-            odor.off(i) = str2num(toks{2})
+            odor.light_on(i) = str2num(toks{2})
         end
     end
     toc
@@ -265,6 +265,9 @@ for i=1:parameter.numt;
     
     
 end
+
+save([PathName '\odor_delivery_' char(datetime('now','TimeZone','local','Format', 'MMM_dd_y_HH_mm_ss'))], 'odor')
+
 % shutAllValves_SS
 %QuickAOPutSample(NIdaq.dev,{'ao0','ao1'},0)
 set(nextodorh,'string','')
