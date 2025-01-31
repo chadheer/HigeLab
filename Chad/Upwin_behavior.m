@@ -716,6 +716,154 @@ data.fly11152024_000.post_left.fr = 30/6;
 
 data.fly11152024_000.post_left.paired_odor = "oct";
 data.fly11152024_000.pre_left.paired_odor = "oct";
+%% Upwin_behavior/11192024/fly000 decent acv resposne
+folder = 'Upwin_behavior/11192024/fly000/ACV_left';
+
+data.fly11192024_000.ACV_left = extract_fictrac(folder);
+data.fly11192024_000.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11192024/fly000/pre';
+
+data.fly11192024_000.pre_left = extract_fictrac(folder);
+data.fly11192024_000.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11192024/fly000/post';
+
+data.fly11192024_000.post_left = extract_fictrac(folder);
+data.fly11192024_000.post_left.fr = 30/6;
+
+data.fly11192024_000.post_left.paired_odor = "oct";
+data.fly11192024_000.pre_left.paired_odor = "oct";
+%% Upwin_behavior/11192024/fly001 decent acv resposne
+folder = 'Upwin_behavior/11192024/fly001/ACV_left';
+
+data.fly11192024_001.ACV_left = extract_fictrac(folder);
+data.fly11192024_001.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11192024/fly001/pre';
+
+data.fly11192024_001.pre_left = extract_fictrac(folder);
+data.fly11192024_001.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11192024/fly001/post';
+
+data.fly11192024_001.post_left = extract_fictrac(folder);
+data.fly11192024_001.post_left.fr = 30/6;
+
+data.fly11192024_001.post_left.paired_odor = "oct";
+data.fly11192024_001.pre_left.paired_odor = "oct";
+%% Upwin_behavior/11212024/fly000 decent acv resposne
+folder = 'Upwin_behavior/11212024/fly000/ACV_left';
+
+data.fly11212024_000.ACV_left = extract_fictrac(folder);
+data.fly11212024_000.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly000/pre';
+
+data.fly11212024_000.pre_left = extract_fictrac(folder);
+data.fly11212024_000.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly000/post';
+
+data.fly11212024_000.post_left = extract_fictrac(folder);
+data.fly11212024_000.post_left.fr = 30/6;
+
+data.fly11212024_000.post_left.paired_odor = "mch";
+data.fly11212024_000.pre_left.paired_odor = "mch";
+
+%% Upwin_behavior/11212024/fly001 decent acv resposne
+folder = 'Upwin_behavior/11212024/fly001/ACV_left';
+
+data.fly11212024_001.ACV_left = extract_fictrac(folder);
+data.fly11212024_001.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly001/pre';
+
+data.fly11212024_001.pre_left = extract_fictrac(folder);
+data.fly11212024_001.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly001/post';
+
+data.fly11212024_001.post_left = extract_fictrac(folder);
+data.fly11212024_001.post_left.fr = 30/6;
+
+data.fly11212024_001.post_left.paired_odor = "oct";
+data.fly11212024_001.pre_left.paired_odor = "oct";
+
+%% Upwin_behavior/11222024/fly002 decent acv resposne
+folder = 'Upwin_behavior/11212024/fly002/ACV_left';
+
+data.fly11212024_002.ACV_left = extract_fictrac(folder);
+data.fly11212024_002.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly002/pre';
+
+data.fly11212024_002.pre_left = extract_fictrac(folder);
+data.fly11212024_002.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly002/post';
+
+data.fly11212024_002.post_left = extract_fictrac(folder);
+data.fly11212024_002.post_left.fr = 30/6;
+
+data.fly11212024_002.post_left.paired_odor = "mch";
+data.fly11212024_002.pre_left.paired_odor = "mch";
+%% Upwin_behavior/11222024/fly003 decent acv resposne
+folder = 'Upwin_behavior/11212024/fly003/ACV_left';
+
+data.fly11212024_003.ACV_left = extract_fictrac(folder);
+data.fly11212024_003.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly003/pre';
+
+data.fly11212024_003.pre_left = extract_fictrac(folder);
+data.fly11212024_003.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11212024/fly003/post';
+
+data.fly11212024_003.post_left = extract_fictrac(folder);
+data.fly11212024_003.post_left.fr = 30/6;
+
+data.fly11212024_003.post_left.paired_odor = "oct";
+data.fly11212024_003.pre_left.paired_odor = "oct";
+
+%% Upwin_behavior/11232024/fly000 decent acv resposne
+folder = 'Upwin_behavior/11222024/fly000/ACV_left';
+
+data.fly11222024_000.ACV_left = extract_fictrac(folder);
+data.fly11222024_000.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11222024/fly000/pre';
+
+data.fly11222024_000.pre_left = extract_fictrac(folder);
+data.fly11222024_000.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11222024/fly000/post';
+
+data.fly11222024_000.post_left = extract_fictrac(folder);
+data.fly11222024_000.post_left.fr = 30/6;
+
+data.fly11222024_000.post_left.paired_odor = "oct";
+data.fly11222024_000.pre_left.paired_odor = "oct";
+%% Upwin_behavior/11232024/fly001 decent acv resposne
+folder = 'Upwin_behavior/11222024/fly001/ACV_left';
+
+data.fly11222024_001.ACV_left = extract_fictrac(folder);
+data.fly11222024_001.ACV_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11222024/fly001/pre';
+
+data.fly11222024_001.pre_left = extract_fictrac(folder);
+data.fly11222024_001.pre_left.fr = 30/6;
+% 
+folder = 'Upwin_behavior/11222024/fly001/post';
+
+data.fly11222024_000.post_left = extract_fictrac(folder);
+data.fly11222024_000.post_left.fr = 30/6;
+
+data.fly11222024_000.post_left.paired_odor = "mch";
+data.fly11222024_000.pre_left.paired_odor = "mch";
+
 
 %%
 straight_vs_turn(data, "movspd")

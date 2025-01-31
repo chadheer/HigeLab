@@ -109,10 +109,11 @@ for fly = 1: length(flies)
         
             for roi = 1: size(data.F,1)
                 if ~isempty(data.F)
-                    trial_trace(trial, roi, :) = (data.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
-                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 20, "sgolay", 7);
+                    trial_trace(trial, roi, :) = (data.dff(roi, (trial-1) * recording_length  + 1:trial * recording_length));
+                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 30, "sgolay", 7);
                 end
             end
+            trial_trace = reshape(data.dff,[length(trial_frames)])
             
             for roi = 1: size(data.axon.F,1)
                 
@@ -197,19 +198,23 @@ for fly = 1: length(flies)
             x_beh = ((1:length(mean_beh)) / beh_fr) - (odor_on + odor_delay);
 
             
-            figure; hold on
             for roi = 1: size(mean_norm_trace,1)
-                plot(x_time, squeeze(nanmean(mean_norm_trace,1)) , "LineWidth", 2, 'Color', cl_colors{1},"DisplayName","somas")
-            end
-            if ~isempty(data.axon.F)
-                plot(x_time, squeeze(nanmean(axon_mean_norm_trace,1)) , "LineWidth", 2, 'Color', cl_colors{2},"DisplayName","axons")
-            end
-            yyaxis right
-            plot(x_beh, mean_beh, "DisplayName","behavior")
+                figure; hold on
+
+                plot(x_time, squeeze(nanmean(mean_norm_trace(roi,:),1)) , "LineWidth", 2, 'Color', cl_colors{1},"DisplayName","somas")
+                yyaxis right
+                plot(x_beh, mean_beh, "DisplayName","behavior")
             
-            legend
+                legend
             
-            title([tasks{task} " " odors{o}])
+                title([tasks{task} " " odors{o}])
+            end
+%             for roi = 1: size(axon_mean_norm_trace,1)
+%                 if ~isempty(data.axon.F)
+%                     plot(x_time, squeeze(nanmean(axon_mean_norm_trace(roi,:),1)) , "LineWidth", 2, 'Color', cl_colors{2},"DisplayName","axons")
+%                 end
+%             end
+
 
         end
         

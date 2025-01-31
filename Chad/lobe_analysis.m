@@ -110,7 +110,7 @@ for fly = 1: length(flies)
             for roi = 1: size(data.F,1)
                 if ~isempty(data.F)
                     trial_trace(trial, roi, :) = (data.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
-                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 20, "sgolay", 7);
+                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 30, "sgolay", 5);
                 end
             end
             
