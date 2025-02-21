@@ -1,4 +1,4 @@
-temp_data = readtable(['results.csv']);
+temp_data = readtable(['Results.csv']);
 temp_data(:,1)=[];
 F = table2array(temp_data);
 
@@ -22,11 +22,11 @@ for roi = 1: size(F,2);
         smooth_Zscore(trial,:) = smooth(Zscore(trial,:), 31, 'sgolay', 5);
     end
     x = ((1:trial_length) -odor_start) / n_planes;
-    ACV_trials = (1:8);
-%     OCT_pre = (4:2:8);
-%     MCH_pre = (5:2:9);
-%     OCT_post = (10:2:20);
-%     MCH_post = (11:2:21);
+    ACV_trials = (1:6);
+    OCT_pre = (7:2:12);
+    MCH_pre = (8:2:12);
+    OCT_post = (13:2:24);
+    MCH_post = (14:2:24);
     sem = nanstd(squeeze(smooth_Zscore(ACV_trials, :)))./sqrt(size(smooth_Zscore(ACV_trials,:),1));
     mean_Zscore(roi,:) = nanmean(smooth_Zscore(ACV_trials,:),1);
     figure;
@@ -36,17 +36,17 @@ for roi = 1: size(F,2);
     alpha(0.3)
 
 
-%     plot(nanmean(Zscore(OCT_pre,:),1), "DisplayName", "OCT pre");
-%     plot(nanmean(Zscore(MCH_pre,:),1), "DisplayName", "MCH pre");
-%     plot(nanmean(Zscore(OCT_post,:),1), "DisplayName", "OCT post");
-%     plot(nanmean(Zscore(MCH_post,:),1), "DisplayName", "MCH post");
+    plot(x,nanmean(smooth_Zscore(OCT_pre,:),1), "DisplayName", "OCT pre");
+    plot(x,nanmean(smooth_Zscore(MCH_pre,:),1), "DisplayName", "MCH pre");
+    plot(x,nanmean(smooth_Zscore(OCT_post,:),1), "DisplayName", "OCT post");
+    plot(x,nanmean(smooth_Zscore(MCH_post,:),1), "DisplayName", "MCH post");
     legend
     
-    figure; hold on
-    
-    for trial = 1: length(ACV_trials)
-        plot(Zscore(ACV_trials(trial),:));
-    end
+%     figure; hold on
+%     
+%     for trial = 1: length(ACV_trials)
+%         plot(Zscore(ACV_trials(trial),:));
+%     end
 
 end
 figure;
