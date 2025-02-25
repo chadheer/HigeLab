@@ -24,7 +24,6 @@ fictrac_out = load(file);
 radius = 4.5;
 
 
-
 frame = fictrac_out(:,1); %frame counter
 
 stim_file = uigetfile;
@@ -138,7 +137,7 @@ if ~exist("odor_id", "var")
 end
 
 stim_frames = [];
-odor_delay = 0.3;
+odor_delay = 2;
 figure; hold on
 
 for stim = 1:length(stim_starts)
@@ -198,7 +197,7 @@ end
     
 %plot moving speed
 smooth_spd = fps * radius*movmean(movspd, 10);
-run = figure;hold on
+figure;hold on
 
 
 odors = fieldnames(trial_frames)
@@ -208,128 +207,66 @@ for o = 1: length(odors)
     for stim = 1:length(trial_frames.(odors{o}));
         session_spd(stim,1:length(trial_frames.(odors{o}){stim})) = smooth_spd(trial_frames.(odors{o}){stim});
         % plot(smooth_spd(trial_frames.(odors{o}){stim}), 'Color', [.7 .7 .7])
-        if ~isempty(trial_frames.(odors{o}){stim})
-            prerun{o}(stim,1:trial_length/2) = smooth_spd(trial_frames.(odors{o}){stim}(1:trial_length/2));
-            duringrun{o}(stim, 1:trial_length/2) = smooth_spd(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
-        end
+        prerun(stim,1:trial_length/2) = smooth_spd(trial_frames.(odors{o}){stim}(1:trial_length/2));
+        duringrun(stim, 1:trial_length/2) = smooth_spd(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
     end
-    figure(run); hold on
-
     plot(nanmean(session_spd), 'DisplayName', odors{o})
     sem = nanstd(session_spd)./sqrt(size(session_spd,1));
     % plot(nanmean(session_spd)+sem)
     % plot(nanmean(session_spd)-sem)
     line([trial_length, trial_length], [min(smooth_spd),max(smooth_spd)]);
     line([2*trial_length, 2*trial_length], [min(smooth_spd),max(smooth_spd)]);
-
-    figure; hold on
-    duringrun{o}(duringrun{o} == 0) = NaN;
-    prerun{o}(prerun{o} == 0) = NaN;
-
-%     h = histogram(duringrun{o})
-%     i = histogram(prerun{o},h.BinEdges)
-%         title(odors{o})
     
-        mean_run = [];
-
-    mean_run(:,1) = nanmean(prerun{o},2);
-    mean_run(:,2) = nanmean(duringrun{o},2);
-
-    [p,t,stats] = anova1(mean_run)
-
-    figure; hold on
-    labels = ["before", "during"];
-    boxplot(mean_run, labels)
-    plot(mean_run', 'Marker', 'o', 'Color', 'k');
-
-    box off
-    yt = get(gca, 'YTick');
-    % axis([xlim    0  ceil(max(yt)*1.2)])
-    xt = get(gca, 'XTick');
-    title([char(odors{o})]);
-
 end
 
-    %plot turning
-
-turn = figure; hold on
+figure; hold on
+h = histogram(duringrun)
+i = histogram(prerun,h.BinEdges)
+%plot turning
+figure; hold on
 
 for o = 1: length(odors)
     max_length = max(cell2mat(cellfun(@size,trial_frames.(odors{o}),'uni',false)));
     session_turn = NaN(length(stim_starts), max_length);
     for stim = 1:length(trial_frames.(odors{o}));
         session_turn(stim,1:length(trial_frames.(odors{o}){stim})) = inthead(trial_frames.(odors{o}){stim});
-        if ~isempty(trial_frames.(odors{o}){stim})
-            preturn{o}(stim,1:trial_length/2) = inthead(trial_frames.(odors{o}){stim}(1:trial_length/2));
-            during_turn{o}(stim, 1:trial_length/2) = inthead(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
-        end
+        preturn(stim,1:trial_length/2) = inthead(trial_frames.(odors{o}){stim}(1:trial_length/2));
+        during_turn(stim, 1:trial_length/2) = inthead(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
         % plot(movdir(trial_frames.(odors{o}){stim}), 'Color', [.7 .7 .7])
     end
-    figure(turn); hold on
     plot(nanmean(session_turn), 'DisplayName', odors{o})
     sem = nanstd(session_turn)./sqrt(size(session_turn,1));
     % plot(nanmean(session_turn)+sem,'r')
     % plot(nanmean(session_turn)-sem, 'r')
     line([trial_length, trial_length], [min(inthead),max(inthead)]);
     line([2*trial_length, 2*trial_length], [min(inthead),max(inthead)]);
-
-    during_turn{o}(during_turn{o} == 0) = NaN;
-    preturn{o}(preturn{o} == 0) = NaN;
-%     figure; hold on
-%     h = histogram(during_turn{o})
-%     i = histogram(preturn{o},h.BinEdges)
-%         title(odors{o})
-
-    mean_turn = [];
-    mean_turn(:,1) = nanmean(preturn{o},2);
-    mean_turn(:,2) = nanmean(during_turn{o},2);
-        [p,t,stats] = anova1(mean_turn)
-
-    figure; hold on
-        labels = ["before", "during"];
-        boxplot(mean_turn, labels)
-        plot(mean_turn', 'Marker', 'o', 'Color', 'k');
-
-        box off
-        yt = get(gca, 'YTick');
-        % axis([xlim    0  ceil(max(yt)*1.2)])
-        xt = get(gca, 'XTick');
-        title([char(odors{o})]);
-
 end
 
-
+figure; hold on
+h = histogram(during_turn)
+i = histogram(preturn,h.BinEdges)
 
 %%
-% rot = figure; hold on
-% for o = 1: length(odors)
-%     max_length = max(cell2mat(cellfun(@size,trial_frames.(odors{o}),'uni',false)));
-%     session_rot = NaN(length(stim_starts), max_length);
-%     for stim = 1:length(trial_frames.(odors{o}));
-%         session_rot(stim,1:length(trial_frames.(odors{o}){stim})) = drotvlz(trial_frames.(odors{o}){stim});
-%         if ~isempty(trial_frames.(odors{o}){stim})
-%             pre_rot{o}(stim,1:trial_length/2) = drotvlz(trial_frames.(odors{o}){stim}(1:trial_length/2));
-%             dur_rot{o}(stim, 1:trial_length/2) = drotvlz(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
-%         end
-%         % plot(movdir(trial_frames.(odors{o}){stim}), 'Color', [.7 .7 .7])
-%     end
-%     figure(rot); hold on
-%     plot(nanmean(session_turn), 'DisplayName', odors{o})
-%     sem = nanstd(session_turn)./sqrt(size(session_turn,1));
-%     % plot(nanmean(session_turn)+sem,'r')
-%     % plot(nanmean(session_turn)-sem, 'r')
-%     line([trial_length, trial_length], [min(drotvlz),max(drotvlz)]);
-%     line([2*trial_length, 2*trial_length], [min(drotvlz),max(drotvlz)]);
-% 
-%     figure; hold on
-%     dur_rot{o}(dur_rot{o} == 0) = NaN;
-%     pre_rot{o}(pre_rot{o} == 0) = NaN;
-% 
-%     h = histogram(during_turn{o})
-%     i = histogram(preturn{o},h.BinEdges)
-%     title(odors{o})
-% end
+figure; hold on
+for o = 1: length(odors)
+    max_length = max(cell2mat(cellfun(@size,trial_frames.(odors{o}),'uni',false)));
+    session_rot = NaN(length(stim_starts), max_length);
+    for stim = 1:length(trial_frames.(odors{o}));
+        session_rot(stim,1:length(trial_frames.(odors{o}){stim})) = drotvlz(trial_frames.(odors{o}){stim});
+        pre_rot(stim,1:trial_length/2) = drotvlz(trial_frames.(odors{o}){stim}(1:trial_length/2));
+        dur_rot(stim, 1:trial_length/2) = drotvlz(trial_frames.(odors{o}){stim}(trial_length + 1: trial_length + trial_length/2));
+        % plot(movdir(trial_frames.(odors{o}){stim}), 'Color', [.7 .7 .7])
+    end
+    plot(nanmean(session_turn), 'DisplayName', odors{o})
+    sem = nanstd(session_turn)./sqrt(size(session_turn,1));
+    % plot(nanmean(session_turn)+sem,'r')
+    % plot(nanmean(session_turn)-sem, 'r')
+    line([trial_length, trial_length], [min(drotvlz),max(drotvlz)]);
+    line([2*trial_length, 2*trial_length], [min(drotvlz),max(drotvlz)]);
+end
 
-
+figure; hold on
+h = histogram(during_turn)
+i = histogram(preturn,h.BinEdges)
 %%
 
