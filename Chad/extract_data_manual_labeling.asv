@@ -1,57 +1,26 @@
+%% extract_data_manual_labeling
+
 %% extract data
 %INPUTS
 %folder = folder where fictrac and fluorescence data is found
 %thresh = optional variable, set threshold for fiji output tracking led
 %turning on and off indicating odor delivery
 
-function [out] = extract_fictrac(folder, thresh);
-
+function [out] = extract_data_manual_labeling(folder, thresh);
 %find current folder wd
 main_folder = pwd;
 %change wd to folder with data
 cd(folder);
 
+out_file = dir('extracted_manual_data.mat');
+
+%if an out file already exists, load it and skip all steps
+
+
 %find and load parameters fild
 param_file = dir('parameters*.mat');
 params = load(param_file.name);
 
-
-% Get user input
-prompt = {'Enter image acquisition rate (in fps):','Enter frames per trial:','Enter radius of ROIs'};
-dlgtitle = 'Gathering user input';
-fieldsize = [1 45; 1 45; 1 45];
-definput = {'5','226','15'};
-answer = inputdlg(prompt,dlgtitle,fieldsize,definput);
-fps = str2double(answer{1});
-fpt = str2double(answer{2});
-roiRadius = str2double(answer{3});
-
-F_name = dir('tiffs/suite2p/plane*positions.csv')
-
-%find and load fluorescence data
-% F_name= dir('*ROIs.mat');
-% if size(F_name,1) == 2;
-%     F = load(F_name(1,:).name);
-%     F.red = load(F_name(2,:).name);
-%     out.F_red_norm = F.data.F ./ F.red.data.F;
-%     out.F_red = F.red.data.F;
-%     % out.Fc = F.data.Fc;
-% else 
-%     F = load(F_name.name);
-%     % out.Fc = F.data.Fc;
-% 
-% end
-
-% for roi = 1: size(F.data.F,2)
-% 
-%     figure; hold on
-%     subplot(2,1,1)
-%     hold on
-%     plot(F.data.F(:,roi))
-%     plot(F.red.data.F(:,roi))
-%     subplot(2,1,2)
-%     plot(out.Fc(:,roi))
-% end
 
 %find fictrac data output
 fictrac_dat = dir('*fictrac*.dat');
@@ -59,10 +28,8 @@ fictrac_out = load(fictrac_dat.name);
 %set radius of ball
 radius = 4.5;
 fps = 100;
-
 %grab odor_delivery output file from thstim if it exists
 stim_file = dir('*odor_delivery*.mat');
-
 
 if isempty(stim_file);
 
@@ -149,26 +116,6 @@ intsidmot = fictrac_out(:,21); %integrated side motion (lc) Y
 time = fictrac_out(:,22); %timestamp
 seq = fictrac_out(:,23); %sequence counter
 
-
-% meanxpos = movmean(intxpos,30)
-% meanypos = movmean(intypos,30)
-% x_diff = diff(meanxpos);
-% y_diff = diff(meanypos);
-% 
-% 
-% immobile = find(abs(x_diff) < 0.001 & abs(y_diff) < 0.001);
-% 
-% temp_xpos = intxpos;
-% temp_ypos = intypos;
-% temp_xpos(immobile) = NaN;
-% temp_ypos(immobile) = NaN;
-% 
-% figure; hold on
-% plot(temp_xpos, temp_ypos)
-% plot(intxpos(immobile), intypos(immobile));
-% plot(movmean(intxpos,30), movmean(intypos,30));
-
-
 %x and fps for plots
 x = (1:length(frame));
 fps = 100;
@@ -198,21 +145,28 @@ out.intyposR = intyposR;
 
 stim_frames = [];
 
-
 % for each trial, find the start, end, length, frames along with frames
 % before and after trial, and the frame number for each point
 for stim = 1:length(stim_starts)
 
-    trial_start{stim} = frame(find(frame > frame_starts(stim),1));
-    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last'));
+    if odor_id{stim} == "MCH";
+        odor_delay = 2 * fps;
+    elseif odor_id{stim} == "OCT";
+        odor_delay = 2 * fps;
+    elseif odor_id{stim} == "acv";
+        odor_delay = 0.3 * fps;
+    elseif odor_id{stim} == "oct" | odor_id{stim} == "mch";
+        odor_delay = 0.3 * fps;
+    end
+
+
+    trial_start{stim} = frame(find(frame > frame_starts(stim),1)) + odor_delay;
+    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last')) + odor_delay;
     trial_length = trial_end{stim}-trial_start{stim};
-    trial_frames{stim} = trial_start{stim} - (params.Data_1.parameter.preO * fps):trial_end{stim} + ((params.Data_1.parameter.dur - (params.Data_1.parameter.preO + params.Data_1.parameter.odorD)) * fps);
+    trial_frames{stim} = trial_start{stim}-trial_length:trial_end{stim}+trial_length;
     stim_frames = [stim_frames, trial_start{stim}:trial_end{stim}];
     trial_x{stim} = trial_frames{stim} - trial_start{stim};
 end
-
-
-
 
 %collect variables for output and convert to the correct units
 out.trial_x = trial_x;
@@ -222,36 +176,11 @@ out.trial_length = trial_length;
 out.trial_frames = trial_frames;
 out.stim_frames = stim_frames;
 out.movspd = movspd * radius * fps;
-out.movspd(out.movspd < 4) = 0;
 out.drotvlx = drotvlx * fps *180/3.14159;
-out.drotvlx(out.movspd < 4) = 0;
 out.drotvly = drotvly * fps *180/3.14159;
-out.drotvly(out.movspd < 4) = 0;
 out.drotvlz = drotvlz * fps *180/3.14159;
-out.drotvlz(out.movspd < 4) = 0;
 out.movdir = movdir * fps * 180/3.14159;
-out.movdir(out.movspd < 4) = 0;
 out.inthead = inthead * fps *180/3.14159;
-out.inthead(out.movspd < 4) = 0;
-out.F = F.data.F;
-out.Data_1 = params.Data_1;
-
-x = diff(out.inthead);
-x = [0; x];
-x(x>5000) = x(x>5000) - 36000; % elimante the large changes in turning that are caused when going over 360 degrees
-x(x<-5000) = x(x<-5000) + 36000; % elimante the large changes in turning that occur when going under 0 degrees
-
-out.inthead = movmean(x, 10); % find the mean of ten frames to smooth data slightly
-
-
-x = diff(out.movdir);
-x = [0; x];
-x(x>5000) = x(x>5000) - 36000;
-x(x<-5000) = x(x<-5000) + 36000;
-
-x = x - nanmean(x);
-
-out.movdir = movmean(x, 10)
 
 if exist("odor_id", 'var')
     out.odor_id = odor_id;
@@ -261,9 +190,81 @@ else
     end
 end
 
-out.net_move = sqrt(out.drotvly.^2 + out.drotvlx.^2 + out.drotvlz.^2)
+
+%% input ROI data and extract fluorescence using manual labeling of ROIs
+if ~isempty(out_file)
+    load(out_file.name);
+
+    % change the wd back to the main folder
+    cd(main_folder);
+else
+% Get user input
+prompt = {'Enter image acquisition rate (in fps)','Enter any trials to exclude (no commas)'};
+dlgtitle = 'Gathering user input';
+fieldsize = [1 45; 1 45; 1 45];
+definput = {'30','1354',''};
+answer = inputdlg(prompt,dlgtitle,fieldsize,definput);
+fps = str2double(answer{1});
+exclude_trials = sscanf(answer{3}, '%f');
+
+%grab image names for any planes where rois have been manually labeled
+F_name = dir('plane*ROIs.csv');
+n_planes = length(F_name);
+
+
+%initialize variables
+out.F = [];
+out.Zscore = [];
+out.DFF = [];
+
+%go through each plane
+for plane = 1: length(n_planes)
+
+    %load data
+    temp_data = readtable([F_name(plane).name]);
+    temp_data(:,1)=[];
+    F = table2array(temp_data);
+
+    %find the number of trials and rois
+    ntrials = numel(fieldnames(params));
+    rois = size(F,2);
+    round(length(F)/ntrials);
+    
+    %exclude any bad trials
+    if ~isnan(exclude_trials)
+        for trial = 1:size(exclude_trials,1);
+            frames_2_exclude = [fpt * (exclude_trials(trial) -1) + 1: fpt * exclude_trials(trial)];
+            F(frames_2_exclude,:) = NaN;
+        end
+    end
+
+    %massage the F data so each trial has the same number of planes
+    F_massaged = NaN(fpt * ntrials, rois);
+    F_massaged(1:length(F), :) = F;
+
+    %reshape F data to be divided into individual trials
+    F_trial = reshape(F_massaged, [fpt, ntrials, rois]);
+    
+    %find frames where odor comes on and off
+    odor_time = params.Data_1.parameter.preO;
+    odor_dur = params.Data_1.parameter.dur;
+    pre_odor_frames = (1:(fps * odor_time));
+    
+    %find the Zscore and DFF for every trial for every ROI
+    baseline = nanmean(F_trial(pre_odor_frames, :, :));
+    baseline_sd = std(F_trial(pre_odor_frames, :, :));
+    Zscore = (F_trial- baseline) ./ baseline_sd;
+    DFF = (F_trial -baseline) ./ baseline;
+ 
+    %collect data for output
+    out.F = [out.F F_massaged];
+    out.Zscore = [out.Zscore reshape(Zscore, [length(F_massaged), rois])];
+    out.DFF = [out.DFF reshape(DFF, [length(F_massaged), rois])];
+end
+
 
 % change the wd back to the main folder
+save("extracted_manual_data", "out")
 cd(main_folder);
-
 end
+

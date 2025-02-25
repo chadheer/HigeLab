@@ -172,19 +172,23 @@ for plane = 1:n_planes
     fprintf('Loading imaging data...');
 
 
-    tiffInfo = imfinfo(image_files{plane});
-    numFrames = numel(tiffInfo);
-    video=zeros(numFrames,tiffInfo(1).Height,tiffInfo(1).Width, 'single');
+%     tiffInfo = imfinfo(image_files{plane});
+%     numFrames = numel(tiffInfo);
 
-    if parOn
-        parfor i=1:numFrames
-            video(i,:,:)=imread(image_files{plane},i);
-        end
-    else
-        for i=1:numFrames
-            video(i,:,:)=imread(image_files{plane},i);
-        end
-    end
+    video = tiffreadVolume(image_files{plane});
+    numFrames = size(video,3);
+
+%     video=zeros(numFrames,tiffInfo(1).Height,tiffInfo(1).Width, 'single');
+% 
+%     if parOn
+%         parfor i=1:numFrames
+%             video(i,:,:)=imread(image_files{plane},i);
+%         end
+%     else
+%         for i=1:numFrames
+%             video(i,:,:)=imread(image_files{plane},i);
+%         end
+%     end
    
     fprintf('complete.\n');
 
@@ -199,10 +203,10 @@ for plane = 1:n_planes
     if mean(mean(mean(video))) > 15000
         a = -32768.0;
         b = 1.0;
-        for i = 1:size(video,1)
-            for j = 1:size(video,2)
-                for k = 1:size(video,3)
-                    video(i,j,k) = a + b*(video(i,j,k));
+        for i = 1:size(video,3)
+            for j = 1:size(video,1)
+                for k = 1:size(video,2)
+                    video(j,k,i) = a + b*(video(j,k,i));
                 end
             end
         end
@@ -265,7 +269,7 @@ for plane = 1:n_planes
         temp_F = [];
 
         for j = 1: size(pixIncludedXY,2) % Number of pixels in the ROI
-            temp_F(:,j) = video(t_frames,pixIncludedXY(1,j),pixIncludedXY(2,j));
+            temp_F(:,j) = video(pixIncludedXY(1,j),pixIncludedXY(2,j), t_frames);
         end
         %find the mean fluorescence for each frame for the ROI
         % Find Zscore and deltaF0/F0
@@ -276,8 +280,8 @@ for plane = 1:n_planes
 
         
         if contains(F_name(plane).name, 'axon')
-            out.axon.F(roi,t_frames) = nanmean(temp_F,2)
-            baseline = nanmean(out.axon.F(roi,pre_odor_frames))
+            out.axon.F(roi,t_frames) = nanmean(temp_F,2);
+            baseline = nanmean(out.axon.F(roi,pre_odor_frames));
             baseline_sd = std(out.axon.F(roi,pre_odor_frames));
             out.axon.Zscore(roi,t_frames) = (out.axon.F(roi,t_frames) - baseline) ./ baseline_sd;
             out.axon.dff(roi,t_frames) = (out.axon.F(roi,t_frames)-baseline) ./ baseline;

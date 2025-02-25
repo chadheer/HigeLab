@@ -88,7 +88,7 @@ for fly = 1: length(flies)
         num_t = size(data.odor_id,1);
         recording_length = floor(size(data.F,2)/num_t);
         
-        trial_trace_axon = NaN(num_t, size(data.axon.F,1), recording_length);
+%         trial_trace_axon = NaN(num_t, size(data.axon.F,1), recording_length);
                 trial_trace = NaN(num_t, size(data.F,1), recording_length);
 
         %create x_axis to align trials to
@@ -110,20 +110,20 @@ for fly = 1: length(flies)
             for roi = 1: size(data.F,1)
                 if ~isempty(data.F)
                     trial_trace(trial, roi, :) = (data.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
-                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 20, "sgolay", 7);
+                    trial_trace(trial, roi, :) = smooth(trial_trace(trial, roi, :), 30, "sgolay", 5);
                 end
             end
             
-            for roi = 1: size(data.axon.F,1)
-                
-                if ~isempty(data.axon.F)
-                    trial_trace_axon(trial, roi, :) = (data.axon.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
-                    trial_trace_axon(trial, roi, :) = smooth(trial_trace_axon(trial, roi, :), 20, "sgolay", 7);
-
-                end
-
-          
-            end
+%             for roi = 1: size(data.axon.F,1)
+%                 
+%                 if ~isempty(data.axon.F)
+%                     trial_trace_axon(trial, roi, :) = (data.axon.Zscore(roi, (trial-1) * recording_length  + 1:trial * recording_length));
+%                     trial_trace_axon(trial, roi, :) = smooth(trial_trace_axon(trial, roi, :), 20, "sgolay", 7);
+% 
+%                 end
+% 
+%           
+%             end
             
         end
         beh_data(beh_data == 0) = NaN;
@@ -136,21 +136,21 @@ for fly = 1: length(flies)
             trials =  odor_id == string(odors{o})
             beh_odor{o} = beh_data(trials,:);
             odor_trace{o} = trial_trace(trials,:,:);
-            axons_trace{o} = trial_trace_axon(trials,:,:);
+%             axons_trace{o} = trial_trace_axon(trials,:,:);
 
             
             
                 % normalize fluorescence trace to the mean of each trial
                 % and find the mean traces
             norm_trace = odor_trace{o};
-            axon_norm_trace = axons_trace{o};
+%             axon_norm_trace = axons_trace{o};
 
             mean_response = squeeze(nanmean(trial_trace(1,:,:),1));
             
             
             mean_norm_trace = squeeze(nanmean(norm_trace,1));
             sem_norm_trace = squeeze(nanstd(norm_trace,[],1))./sqrt(size(norm_trace,1));
-            axon_mean_norm_trace = squeeze(nanmean(axon_norm_trace,1));
+%             axon_mean_norm_trace = squeeze(nanmean(axon_norm_trace,1));
 
             
 

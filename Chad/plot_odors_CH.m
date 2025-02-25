@@ -24,8 +24,6 @@ fictrac_out = load(file);
 radius = 4.5;
 
 
-
-
 frame = fictrac_out(:,1); %frame counter
 
 stim_file = uigetfile;
