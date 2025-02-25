@@ -267,8 +267,8 @@ for task = 1:length(tasks)
 
         x0=10;
         y0=10;
-        width= 200;
-        height= 300
+        width= 100;
+        height= 200;
         set(gcf,'position',[x0,y0,width,height])
 
 
@@ -319,18 +319,18 @@ for o = 1: length(odors)
 
         if measure == "movspd"
             ylabel("change in speed (mm/s)")
-            ylim([-3 10])
+            ylim([-5 8])
 
 
         else 
             ylabel("change in turning (degrees/s)")
-            ylim([-40 180])
+            ylim([-50 80])
 
         end
         x0=10;
         y0=10;
-        width= 200;
-        height= 300
+        width= 100;
+        height= 200
         set(gcf,'position',[x0,y0,width,height])
 
 
@@ -449,6 +449,34 @@ end
 
 
 
+%% clustering of responses
+
+for task =1 : length(tasks)
+    odors = fieldnames(lap_means.(tasks{task}));
+
+    for o = 1: length(odors)
+        n_trials = size(delta_trial.(tasks{task}).(odors{o}),1) * size(delta_trial.(tasks{task}).(odors{o}),2);
+
+        responses = reshape(delta_trial.(tasks{task}).(odors{o}), [n_trials,1]);
+        clusters = kmeans(responses,2);
+        figure;
+        h = histogram(responses,30);
+        figure;
+        hold on
+        histogram(responses(clusters == 1), h.BinEdges);
+        % fitdist(responses(clusters == 1), 'Normal');
+        % pdf(
+
+        histogram(responses(clusters == 2), h.BinEdges);
+        % fitdist(responses(clusters == 2),'Normal');
+        x0=10;
+        y0=10;
+        width= 300;
+        height= 200;
+        set(gcf,'position',[x0,y0,width,height])
+        legend
+    end
+end
 
 %% 
 

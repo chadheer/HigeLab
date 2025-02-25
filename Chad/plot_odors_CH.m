@@ -139,10 +139,12 @@ if ~exist("odor_id", "var")
 end
 
 stim_frames = [];
+odor_delay = 2;
+figure; hold on
 
 for stim = 1:length(stim_starts)
-    trial_start{stim} = frame(find(frame > frame_starts(stim),1));
-    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last'));
+    trial_start{stim} = frame(find(frame > frame_starts(stim),1)) + odor_delay;
+    trial_end{stim} = frame(find(frame < frame_ends(stim),1,'last'))+ odor_delay;
     trial_length = trial_end{stim}-trial_start{stim};
     trial_frames.(odor_id{stim}){stim} = trial_start{stim}-trial_length:trial_end{stim}+trial_length;
     
@@ -154,12 +156,43 @@ for stim = 1:length(stim_starts)
     post_ypos = intyposR(trial_end{stim}:trial_end{stim} + (trial_length)) - intyposR(trial_start{stim});
 
 
-    figure;hold on
-    title(odor_id{stim})
-    plot(trial_xpos, trial_ypos)
-    plot(trial_xpos(1),trial_ypos(1),'g.','markersize',20);
-    plot(pre_xpos, pre_ypos);
-    plot(post_xpos, post_ypos);
+    subplot(2,4,stim) 
+    hold on
+
+    %rotate plot so first 100 points are moving straight up
+    v1 = [trial_xpos(1), trial_ypos(1)+1,0] - [trial_xpos(1),trial_ypos(1),0];
+
+    v2 = [trial_xpos(250), trial_ypos(250),0] - [trial_xpos(1),trial_ypos(1),0];
+  
+    theta = atan2(norm(cross(v1, v2)), dot(v1, v2));
+    degrees = -rad2deg(theta);
+    R = [cosd(degrees) -sind(degrees); sind(degrees) cosd(degrees)];
+    % Rotate your point(s)
+    point = [trial_xpos, trial_ypos]'; % arbitrarily selected
+    pre_points = [pre_xpos, pre_ypos]';
+    post_points = [post_xpos, post_ypos]';
+    rotpoint = R*point;
+    rotpost = R*post_points;
+    rotpre = R*pre_points;
+    %
+    title(['trial ' num2str(stim)])
+    % plot(trial_xpos, trial_ypos)
+    % plot(trial_xpos(1),trial_ypos(1),'g.','markersize',20);
+    % plot(trial_xpos(100),trial_ypos(100),'g.','markersize',20);
+    % plot(pre_xpos, pre_ypos);
+    % plot(post_xpos, post_ypos);
+    plot(rotpoint(1,:), rotpoint(2,:))
+    plot(rotpoint(1,1), rotpoint(2,1),'g.','markersize',20)
+
+    plot(rotpre(1,:), rotpre(2,:))
+    plot(rotpost(1,:), rotpost(2,:))
+       
+    x0=10;
+    y0=10;
+    width= 800;
+    height= 400;
+    set(gcf,'position',[x0,y0,width,height])
+
     stim_frames = [stim_frames, trial_start{stim}:trial_end{stim}];
 end
 
