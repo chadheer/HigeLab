@@ -168,8 +168,8 @@ for fly = 1: length(flies)
                 during = 3 * fr;
             else
                 % during = trial_length(fly,task);
-                delay = 1 * fr;
-                during = 4 * fr;
+                delay = 0 * fr;
+                during = 3 * fr;
             end
         
             % find the mean activity prior to, during, and after
@@ -189,17 +189,17 @@ for fly = 1: length(flies)
             this_odor = this_odor(1:size(trial_frames,2));
 
             lap_means.(tasks{task}).(odors{o})(fly,2,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001:5000+during),3));
-            lap_means.(tasks{task}).(odors{o})(fly,1,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
+            lap_means.(tasks{task}).(odors{o})(fly,1,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5000-during:5000),3));
 
 
             
-            comparisons.(tasks{task}).(odors{o})(fly,1) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,1:5000),2);
+            comparisons.(tasks{task}).(odors{o})(fly,1) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5000-during:5000),2);
             comparisons.(tasks{task}).(odors{o})(fly,2) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5001+ delay:5000 + during),2);
             comparisons.(tasks{task}).(odors{o})(fly,3) = nanmean(data_mean.(tasks{task}).(odors{o})(fly,5000 + trial_length(fly,task):end),2);
 
 
             delta_measure.(tasks{task}).(odors{o})(fly) = comparisons.(tasks{task}).(odors{o})(fly,2) - comparisons.(tasks{task}).(odors{o})(fly,1);
-            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001+ delay:5000+during),3)) - squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,1:5000),3));
+            delta_trial.(tasks{task}).(odors{o})(fly,1:sum(this_odor)) = squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5001+ delay:5000+during),3)) - squeeze(nanmean(session_data.(tasks{task}).(odors{o})(fly,this_odor,5000-during:5000),3));
             
             % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),1) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,1:5000),4));
             % trial_mean.(tasks{task}).(odors{o})(fly,1:sum(this_odor),2) = squeeze(nanmean(session_data.(odors{o})(fly,task,this_odor,5001+ delay:5000+during),4));

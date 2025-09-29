@@ -1,0 +1,290 @@
+% %% SMP108
+% % ImagingData/04252025/fly000
+%  
+% folder = 'UPWIN/04252025/fly000/ACV_right';
+% 
+% data.fly04252025_000.ACV_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/04252025/fly000/pre';
+% 
+% data.fly04252025_000.pre_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/04252025/fly000/post';
+% 
+% data.fly04252025_000.post_right = extract_fictrac(folder);
+% 
+% data.fly04252025_000.post_right.paired_odor = "oct";
+% data.fly04252025_000.pre_right.paired_odor = "oct";
+
+% folder = 'UPWIN/04252025/fly000';
+% bad_trials = [];
+% data.fly04252025_000 = extract_fluorescence(data.fly04252025_000, folder, bad_trials)
+
+% %% SMP108
+% % ImagingData/04252025/fly001
+%  
+% folder = 'UPWIN/04252025/fly001/ACV_right';
+% 
+% data.fly04252025_001.ACV_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/04252025/fly001/pre';
+% 
+% data.fly04252025_001.pre_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/04252025/fly001/post';
+% 
+% data.fly04252025_001.post_right = extract_fictrac(folder);
+% 
+% data.fly04252025_001.post_right.paired_odor = "mch";
+% data.fly04252025_001.pre_right.paired_odor = "mch";
+% % 
+% % folder = 'UPWIN/04252025/fly001';
+% bad_trials = [];
+% data.fly04252025_001 = extract_fluorescence(data.fly04252025_001, folder, bad_trials)
+%% SMP108
+% ImagingData/04292025/fly000
+ 
+folder = 'UPWIN/04292025/fly000/ACV_right';
+
+data.fly04292025_000.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/04292025/fly000/pre';
+
+data.fly04292025_000.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/04292025/fly000/post';
+
+data.fly04292025_000.post_right = extract_fictrac(folder);
+
+data.fly04292025_000.post_right.paired_odor = "oct";
+data.fly04292025_000.pre_right.paired_odor = "oct";
+
+folder = 'UPWIN/04292025/fly000';
+bad_trials = [];
+data.fly04292025_000 = extract_fluorescence(data.fly04292025_000, folder, bad_trials)
+
+%% SMP108 
+% ImagingData/05062025/fly000
+ 
+folder = 'UPWIN/05062025/fly000/ACV_right';
+
+data.fly05062025_000.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05062025/fly000/pre';
+
+data.fly05062025_000.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05062025/fly000/post';
+
+data.fly05062025_000.post_right = extract_fictrac(folder);
+
+data.fly05062025_000.post_right.paired_odor = "oct";
+data.fly05062025_000.pre_right.paired_odor = "oct";
+
+folder = 'UPWIN/05062025/fly000';
+bad_trials = [];
+data.fly05062025_000 = extract_fluorescence(data.fly05062025_000, folder, bad_trials)
+
+%%
+% ImagingData/05062025/fly001
+ 
+folder = 'UPWIN/05062025/fly001/ACV_right';
+
+data.fly05062025_001.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05062025/fly001/pre';
+
+data.fly05062025_001.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05062025/fly001/post';
+
+data.fly05062025_001.post_right = extract_fictrac(folder);
+
+data.fly05062025_001.post_right.paired_odor = "mch";
+data.fly05062025_001.pre_right.paired_odor = "mch";
+
+folder = 'UPWIN/05062025/fly001';
+bad_trials = [];
+data.fly05062025_001 = extract_fluorescence(data.fly05062025_001, folder, bad_trials)
+
+%%
+% ImagingData/05082025/fly001
+ 
+folder = 'UPWIN/05082025/fly001/ACV_right';
+
+data.fly05082025_001.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05082025/fly001/pre';
+
+data.fly05082025_001.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05082025/fly001/post';
+
+data.fly05082025_001.post_right = extract_fictrac(folder);
+
+data.fly05082025_001.post_right.paired_odor = "mch";
+data.fly05082025_001.pre_right.paired_odor = "mch";
+
+folder = 'UPWIN/05082025/fly001';
+bad_trials = [];
+data.fly05082025_001 = extract_fluorescence(data.fly05082025_001, folder, bad_trials)
+%%
+% ImagingData/05132025/fly000
+ 
+folder = 'UPWIN/05132025/fly000/ACV_right';
+
+data.fly05132025_000.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05132025/fly000/pre';
+
+data.fly05132025_000.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05132025/fly000/post';
+
+data.fly05132025_000.post_right = extract_fictrac(folder);
+
+data.fly05132025_000.post_right.paired_odor = "oct";
+data.fly05132025_000.pre_right.paired_odor = "oct";
+
+folder = 'UPWIN/05132025/fly000';
+bad_trials = [20,21];
+data.fly05132025_000 = extract_fluorescence(data.fly05132025_000, folder, bad_trials)
+%%
+% ImagingData/05132025/fly001
+ 
+folder = 'UPWIN/05132025/fly001/ACV_right';
+
+data.fly05132025_001.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05132025/fly001/pre';
+
+data.fly05132025_001.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05132025/fly001/post';
+
+data.fly05132025_001.post_right = extract_fictrac(folder);
+
+data.fly05132025_001.post_right.paired_odor = "mch";
+data.fly05132025_001.pre_right.paired_odor = "mch";
+
+folder = 'UPWIN/05132025/fly001';
+bad_trials = [];
+data.fly05132025_001 = extract_fluorescence(data.fly05132025_001, folder, bad_trials)
+
+%%
+% ImagingData/05152025/fly001
+ 
+folder = 'UPWIN/05152025/fly001/ACV_right';
+
+data.fly05152025_001.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05152025/fly001/pre';
+
+data.fly05152025_001.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05152025/fly001/post';
+
+data.fly05152025_001.post_right = extract_fictrac(folder);
+
+data.fly05152025_001.post_right.paired_odor = "mch";
+data.fly05152025_001.pre_right.paired_odor = "mch";
+
+folder = 'UPWIN/05152025/fly001';
+bad_trials = [];
+data.fly05152025_001 = extract_fluorescence(data.fly05152025_001, folder, bad_trials)
+
+%% flew
+% % ImagingData/05212025/fly000
+%  
+% folder = 'UPWIN/05212025/fly000/ACV_right';
+% 
+% data.fly05212025_000.ACV_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/05212025/fly000/pre';
+% 
+% data.fly05212025_000.pre_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/05212025/fly000/post';
+% 
+% data.fly05212025_000.post_right = extract_fictrac(folder);
+% 
+% data.fly05212025_000.post_right.paired_odor = "mch";
+% data.fly05212025_000.pre_right.paired_odor = "mch";
+% 
+% folder = 'UPWIN/05212025/fly001';
+% bad_trials = [22:26];
+% data.fly05212025_000 = extract_fluorescence(data.fly05212025_000, folder, bad_trials)
+% 
+%%
+% ImagingData/05212025/fly001
+ 
+folder = 'UPWIN/05212025/fly001/ACV_right';
+
+data.fly05212025_001.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05212025/fly001/pre';
+
+data.fly05212025_001.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/05212025/fly001/post';
+
+data.fly05212025_001.post_right = extract_fictrac(folder);
+
+data.fly05212025_001.post_right.paired_odor = "oct";
+data.fly05212025_001.pre_right.paired_odor = "oct";
+
+folder = 'UPWIN/05212025/fly001';
+bad_trials = [22:26];
+data.fly05212025_001 = extract_fluorescence(data.fly05212025_001, folder, bad_trials)
+% 
+% %% bad activity
+% % ImagingData/05272025/fly000
+%  
+% folder = 'UPWIN/05272025/fly000/ACV_right';
+% 
+% data.fly05272025_000.ACV_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/05272025/fly000/pre';
+% 
+% data.fly05272025_000.pre_right = extract_fictrac(folder);
+% % 
+% folder = 'UPWIN/05272025/fly000/post';
+% 
+% data.fly05272025_000.post_right = extract_fictrac(folder);
+% 
+% data.fly05272025_000.post_right.paired_odor = "mch";
+% data.fly05272025_000.pre_right.paired_odor = "mch";
+% 
+% folder = 'UPWIN/05272025/fly001';
+% bad_trials = [22:26];
+% data.fly05272025_000 = extract_fluorescence(data.fly05272025_000, folder, bad_trials)
+
+
+%%
+% ImagingData/06042025/fly000
+ 
+folder = 'UPWIN/06042025/fly000/ACV_right';
+
+data.fly06042025_000.ACV_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/06042025/fly000/pre';
+
+data.fly06042025_000.pre_right = extract_fictrac(folder);
+% 
+folder = 'UPWIN/06042025/fly000/post';
+
+data.fly06042025_000.post_right = extract_fictrac(folder);
+
+data.fly05212025_001.post_right.paired_odor = "oct";
+data.fly05212025_001.pre_right.paired_odor = "oct";
+
+folder = 'UPWIN/06042025/fly001';
+bad_trials = [22:26];
+data.fly05212025_001 = extract_fluorescence(data.fly05212025_001, folder, bad_trials)
+%%
+save('SMP108')
+
+F_and_beh(data,'inthead');
+%%
+straight_vs_turn(data, "movspd")
+straight_vs_turn(data, "inthead")
