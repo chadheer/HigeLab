@@ -147,6 +147,8 @@ for stim = 1:length(stim_starts)
         odor_delay = 0.3 * fps;
     elseif odor_id{stim} == "oct" | odor_id{stim} == "mch";
         odor_delay = 0.3 * fps;
+    else
+        odor_delay = 0;
     end
 
 
