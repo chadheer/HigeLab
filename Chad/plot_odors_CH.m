@@ -16,7 +16,7 @@
 % % Last updated by Drew, 14 Feb 2022
 
 %% FicTracExtract.m
-% close all
+close all
 clear all
 
 file = uigetfile('*.dat');
@@ -124,21 +124,12 @@ x = x- nanmean(x);
 
 inthead = movmean(x, 10);
 
-inthead = inthead * fps * 180/3.14159;
-
-x = diff(inthead);
-x = [0; x];
-x(x>5000) = x(x>5000) - 36000;
-x(x<-5000) = x(x<-5000) + 36000;
-
-inthead = movmean(x, 10);
-
 if ~exist("odor_id", "var")
     odor_id = "odor1";
 end
 
 stim_frames = [];
-odor_delay = 0.3;
+odor_delay = 0.3 * fps;
 figure; hold on
 
 for stim = 1:length(stim_starts)
@@ -155,7 +146,7 @@ for stim = 1:length(stim_starts)
     post_ypos = intyposR(trial_end{stim}:trial_end{stim} + (trial_length)) - intyposR(trial_start{stim});
 
 
-    subplot(2,length(stim_starts)/2,stim) 
+    subplot(2,ceil(length(stim_starts)/2),stim) 
     hold on
 
     %rotate plot so first 100 points are moving straight up
